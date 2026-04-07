@@ -4,4 +4,5 @@
  */
 
 export { createSecretsStore } from "./secrets.js";
+export { createStateStore } from "./state.js";
 export { encrypt, decrypt, parseEncryptionKey } from "./crypto.js";

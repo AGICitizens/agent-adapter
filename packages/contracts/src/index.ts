@@ -29,6 +29,8 @@ export type {
 
 export type { SecretsBackend } from "./secrets.js";
 
+export type { StateBackend } from "./state.js";
+
 export type { RuntimeEvent, Extension } from "./extensions.js";
 
 export type { PlatformDriver } from "./drivers.js";

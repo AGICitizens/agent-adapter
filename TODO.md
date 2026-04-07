@@ -4,8 +4,8 @@ Tasks ordered for incremental development — each builds on what came before.
 
 ## Phase 1 — Foundation (v0.1)
 
-- [ ] 1.1 — Config loader: YAML parsing, env var resolution (`${VAR}`), Zod validation
-- [ ] 1.2 — Database abstraction: Drizzle schema, SQLite adapter, Postgres adapter, `createDb()` factory
+- [x] 1.1 — Config loader: YAML parsing, env var resolution (`${VAR}`), Zod validation
+- [x] 1.2 — Database abstraction: Drizzle schema, SQLite adapter, Postgres adapter, `createDb()` factory
 - [ ] 1.3 — Secrets store: AES-256-GCM encrypted credential storage, provider-scoped keys
 - [ ] 1.4 — State store: JSON key-value persistence
 - [ ] 1.5 — Wallet module: WalletRegistry, wallet-solana plugin, encrypted persistence

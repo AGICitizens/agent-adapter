@@ -43,19 +43,13 @@ export type JobStatus = "pending" | "executing" | "completed" | "failed";
 export interface Job {
   readonly id: string;
   readonly providerId: string;
-  readonly capability: string;
+  readonly capabilityName: string;
   readonly platform: string;
   readonly platformRef: string;
   readonly status: JobStatus;
-  readonly inputHash: string | null;
-  readonly outputHash: string | null;
-  readonly paymentProtocol: string | null;
   readonly paymentStatus: string | null;
   readonly paymentAmount: number | null;
   readonly paymentCurrency: string | null;
-  readonly llmInputTokens: number | null;
-  readonly llmOutputTokens: number | null;
-  readonly llmEstimatedCost: number | null;
   readonly createdAt: string;
   readonly completedAt: string | null;
 }

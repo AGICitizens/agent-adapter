@@ -36,7 +36,7 @@ describe("loadConfig", () => {
     expect(cfg.agent.maxToolRounds).toBe(5);
     expect(cfg.agent.promptMode).toBe("append");
     expect(cfg.capabilities).toHaveLength(1);
-    expect(cfg.capabilities[0].type).toBe("openapi");
+    expect(cfg.capabilities[0]!.type).toBe("openapi");
     expect(cfg.payments).toHaveLength(1);
     expect(cfg.plugins).toHaveLength(1);
     expect(cfg.drivers).toHaveLength(1);

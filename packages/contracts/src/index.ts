@@ -10,6 +10,14 @@ export type {
   ToolDefinition,
 } from "./types.js";
 
+export {
+  DATABASE_DRIVERS,
+  CAPABILITY_SOURCE_TYPES,
+  HTTP_METHODS,
+  JOB_STATUSES,
+  PAYMENT_STATUSES,
+} from "./constants.js";
+
 export type { WalletPlugin, WalletRegistry } from "./wallet.js";
 
 export type {

@@ -19,24 +19,55 @@ export const walletConfigSchema = z.object({
 });
 
 export const serverConfigSchema = z.object({
-  host: z.string().default("0.0.0.0"),
+  host: z.string().default("127.0.0.1"),
   port: z.number().int().default(3000),
   /** Serve the embedded dashboard SPA alongside the API */
   dashboard: z.boolean().default(false),
 });
 
-export const agentConfigSchema = z.object({
-  enabled: z.boolean().default(false),
-  llmProvider: z.string(),
-  llmModel: z.string(),
-  /** Resolved from env var, never stored in plain YAML */
-  llmApiKey: z.string(),
-  /** Hard ceiling on tool-call rounds to prevent runaway loops */
-  maxToolRounds: z.number().int().default(10),
-  customPrompt: z.string().optional(),
-  /** "append" merges with the default system prompt; "replace" overrides it entirely. */
-  promptMode: z.enum(["append", "replace"]).optional(),
-});
+export const agentConfigSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    llmProvider: z.string().optional(),
+    llmModel: z.string().optional(),
+    /** Resolved from env var, never stored in plain YAML */
+    llmApiKey: z.string().optional(),
+    /** Hard ceiling on tool-call rounds to prevent runaway loops */
+    maxToolRounds: z.number().int().default(10),
+    customPrompt: z.string().optional(),
+    /** "append" merges with the default system prompt; "replace" overrides it entirely. */
+    promptMode: z.enum(["append", "replace"]).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (!value.enabled) {
+      return;
+    }
+
+    if (!value.llmProvider) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "agent.llmProvider is required when agent.enabled is true",
+        path: ["llmProvider"],
+      });
+    }
+
+    if (!value.llmModel) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "agent.llmModel is required when agent.enabled is true",
+        path: ["llmModel"],
+      });
+    }
+
+    if (!value.llmApiKey) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "agent.llmApiKey is required when agent.enabled is true",
+        path: ["llmApiKey"],
+      });
+    }
+  })
+  .default({});
 
 export const capabilitySourceConfigSchema = z.object({
   /**
@@ -85,7 +116,7 @@ export const adapterConfigSchema = z.object({
   database: databaseConfigSchema.default({}),
   wallet: walletConfigSchema,
   server: serverConfigSchema.default({}),
-  agent: agentConfigSchema,
+  agent: agentConfigSchema.optional().default({}),
 
   capabilities: z.array(capabilitySourceConfigSchema).default([]),
   payments: z.array(paymentAdapterConfigSchema).default([]),

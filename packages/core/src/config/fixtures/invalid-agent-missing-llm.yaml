@@ -1,0 +1,5 @@
+name: invalid-agent
+wallet:
+  plugin: wallet-solana
+agent:
+  enabled: true

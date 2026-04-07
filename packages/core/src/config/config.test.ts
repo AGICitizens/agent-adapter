@@ -13,11 +13,14 @@ describe("loadConfig", () => {
     expect(cfg.name).toBe("test-adapter");
     expect(cfg.mode).toBe("self-hosted");
     expect(cfg.database.driver).toBe("sqlite");
-    expect(cfg.server.host).toBe("0.0.0.0");
+    expect(cfg.server.host).toBe("127.0.0.1");
     expect(cfg.server.port).toBe(3000);
     expect(cfg.server.dashboard).toBe(false);
     expect(cfg.agent.enabled).toBe(false);
     expect(cfg.agent.maxToolRounds).toBe(10);
+    expect(cfg.agent.llmProvider).toBeUndefined();
+    expect(cfg.agent.llmModel).toBeUndefined();
+    expect(cfg.agent.llmApiKey).toBeUndefined();
     expect(cfg.capabilities).toEqual([]);
     expect(cfg.payments).toEqual([]);
     expect(cfg.plugins).toEqual([]);
@@ -67,6 +70,12 @@ describe("loadConfig", () => {
 
   it("throws when required 'wallet' is missing", () => {
     expect(() => loadConfig(fixture("invalid-missing-wallet.yaml"))).toThrow();
+  });
+
+  it("throws when agent is enabled without required LLM settings", () => {
+    expect(() => loadConfig(fixture("invalid-agent-missing-llm.yaml"))).toThrow(
+      "agent.llmProvider is required when agent.enabled is true",
+    );
   });
 
   it("throws on invalid enum value for mode", () => {

@@ -1,0 +1,22 @@
+{
+  "name": "@agent-adapter/cli",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "agent-adapter": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@agent-adapter/contracts": "workspace:*",
+    "@agent-adapter/core": "workspace:*",
+    "@agent-adapter/server": "workspace:*",
+    "commander": "^13.1.0"
+  }
+}

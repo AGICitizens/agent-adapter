@@ -85,7 +85,7 @@ Each module has a single clear responsibility. No module imports from another mo
 - **src/payments.ts** — PaymentAdapter, PaymentChallenge, PaymentReceipt, PaymentSession
 - **src/secrets.ts** — SecretsBackend interface
 - **src/extensions.ts** — Extension interface, RuntimeEvent enum
-- **src/drivers.ts** — PlatformDriver interface
+- **src/drivers.ts** — PlatformDriver interface (metadata + tools pattern: platform info for dashboard/prompts, operations exposed as ToolDefinitions, `meta` bag for OpenAPI specs/docs URLs)
 - **src/tool-plugins.ts** — ToolPlugin interface
 - **src/runtime.ts** — RuntimeAPI (stable surface for plugins)
 - **src/database.ts** — DatabaseAdapter interface

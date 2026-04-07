@@ -6,7 +6,7 @@
 | ---------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
 | Language         | TypeScript (strict mode)                | Solana ecosystem alignment, MCP tooling compat, type safety across packages          |
 | Runtime          | Node.js (ES2022)                        | Async-first, broad library ecosystem, single-process model                           |
-| Build            | Turborepo + tsc                         | Monorepo with incremental builds, no bundler complexity for backend packages         |
+| Build            | Turborepo + pnpm workspaces + tsc       | Monorepo with incremental builds, no bundler complexity for backend packages         |
 | DB (self-hosted) | SQLite via better-sqlite3 + Drizzle ORM | Zero-config, single-file, self-hostable                                              |
 | DB (hosted)      | PostgreSQL via Supabase + Drizzle ORM   | Multi-tenant RLS, managed auth, same Drizzle schema                                  |
 | ORM              | Drizzle ORM                             | Dialect-agnostic query builder, supports both SQLite and Postgres from shared schema |

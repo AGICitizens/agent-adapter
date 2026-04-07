@@ -92,6 +92,6 @@
 - **Date**: 2026-04-07
 - **Status**: Accepted
 - **Context**: Monorepo with 5 packages needs build orchestration that respects the dependency graph.
-- **Decision**: Use Turborepo with npm workspaces. `turbo build` builds packages in dependency order (contracts → core → agent/server → cli). Caching speeds up rebuilds.
-- **Consequences**: Requires `turbo.json` config. Build artifacts in `dist/` per package. Dev mode uses `tsc --watch` per package.
-- **Alternatives considered**: Nx (rejected — heavier, more opinionated), plain npm workspaces with manual build order (rejected — error-prone as package count grows), Lerna (rejected — effectively dead, Turborepo is the successor).
+- **Decision**: Use Turborepo with pnpm workspaces. `turbo build` builds packages in dependency order (contracts → core → agent/server → cli). Caching speeds up rebuilds. pnpm's `workspace:*` protocol for inter-package dependencies.
+- **Consequences**: Requires `turbo.json` config and `pnpm-workspace.yaml`. Build artifacts in `dist/` per package. Dev mode uses `tsc --watch` per package.
+- **Alternatives considered**: Nx (rejected — heavier, more opinionated), plain pnpm workspaces with manual build order (rejected — error-prone as package count grows), Lerna (rejected — effectively dead, Turborepo is the successor), npm workspaces (rejected — pnpm is faster, stricter dependency resolution, better disk efficiency).

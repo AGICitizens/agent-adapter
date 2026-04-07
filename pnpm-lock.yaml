@@ -48,7 +48,11 @@ importers:
         specifier: ^13.1.0
         version: 13.1.0
 
-  packages/contracts: {}
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
 
   packages/core:
     dependencies:

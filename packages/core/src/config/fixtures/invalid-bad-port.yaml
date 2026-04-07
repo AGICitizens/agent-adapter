@@ -1,0 +1,9 @@
+name: bad-port
+wallet:
+  plugin: wallet-solana
+server:
+  port: "not-a-number"
+agent:
+  llmProvider: openai
+  llmModel: gpt-4
+  llmApiKey: sk-test

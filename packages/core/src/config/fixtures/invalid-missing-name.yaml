@@ -1,0 +1,6 @@
+wallet:
+  plugin: wallet-solana
+agent:
+  llmProvider: openai
+  llmModel: gpt-4
+  llmApiKey: sk-test

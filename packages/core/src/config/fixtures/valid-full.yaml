@@ -1,0 +1,33 @@
+name: full-adapter
+mode: hosted
+database:
+  driver: postgres
+  url: postgres://localhost:5432/test
+wallet:
+  plugin: wallet-evm
+  chains:
+    - eip155:1
+    - eip155:137
+server:
+  host: 127.0.0.1
+  port: 8080
+  dashboard: true
+agent:
+  enabled: true
+  llmProvider: anthropic
+  llmModel: claude-sonnet-4-6
+  llmApiKey: sk-ant-key
+  maxToolRounds: 5
+  customPrompt: "You are a helpful agent."
+  promptMode: append
+capabilities:
+  - type: openapi
+    url: https://api.example.com/openapi.json
+payments:
+  - type: x402
+    config:
+      network: solana
+plugins:
+  - package: "@acme/custom-plugin"
+drivers:
+  - package: "@acme/telegram-driver"

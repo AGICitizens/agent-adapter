@@ -1,0 +1,7 @@
+name: env-test
+wallet:
+  plugin: wallet-solana
+agent:
+  llmProvider: openai
+  llmModel: gpt-4
+  llmApiKey: ${TEST_LLM_KEY}

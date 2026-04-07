@@ -3,4 +3,5 @@
  * All encryption/decryption for credentials lives here.
  */
 
-export {};
+export { createSecretsStore } from "./secrets.js";
+export { encrypt, decrypt, parseEncryptionKey } from "./crypto.js";

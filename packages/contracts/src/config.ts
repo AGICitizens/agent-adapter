@@ -73,6 +73,11 @@ export const driverConfigSchema = z.object({
   config: z.record(z.unknown()).optional(),
 });
 
+export const secretsConfigSchema = z.object({
+  /** Hex-encoded 32-byte AES-256 key. Use ${ENV_VAR} syntax. */
+  encryptionKey: z.string().length(64),
+});
+
 export const adapterConfigSchema = z.object({
   name: z.string(),
   mode: z.enum(["hosted", "self-hosted"]).default("self-hosted"),
@@ -87,6 +92,8 @@ export const adapterConfigSchema = z.object({
   plugins: z.array(pluginConfigSchema).default([]),
   /** Platform drivers (e.g. Telegram, Discord) that expose capabilities to end users. */
   drivers: z.array(driverConfigSchema).default([]),
+
+  secrets: secretsConfigSchema.optional(),
 });
 
 export type AdapterConfig = z.infer<typeof adapterConfigSchema>;
@@ -100,3 +107,4 @@ export type CapabilitySourceConfig = z.infer<
 export type PaymentAdapterConfig = z.infer<typeof paymentAdapterConfigSchema>;
 export type PluginConfig = z.infer<typeof pluginConfigSchema>;
 export type DriverConfig = z.infer<typeof driverConfigSchema>;
+export type SecretConfig = z.infer<typeof secretsConfigSchema>;

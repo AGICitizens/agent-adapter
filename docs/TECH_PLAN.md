@@ -17,7 +17,7 @@
 | Solana           | @solana/web3.js + tweetnacl             | Fallback Solana-only wallet plugin, standard Solana libraries                        |
 | EVM              | viem                                    | EVM wallet plugin for Base, Arbitrum, Polygon, Ethereum (Phase 7)                    |
 | x402             | @x402/core + @x402/evm + @x402/svm     | Multi-chain x402 V2 payment protocol with CAIP-2 network identifiers                |
-| Encryption       | Node.js crypto (AES-256-GCM)            | Built-in, no external dependency                                                     |
+| Encryption       | @noble/ciphers (AES-256-GCM)            | Audited, pure JS, no native bindings                                                 |
 | CLI              | Commander.js                            | Standard Node CLI framework                                                          |
 | Dashboard        | React + Vite (embedded SPA)             | Served by the Hono server, no separate process                                       |
 | Config           | YAML (yaml npm)                         | Human-readable, provider-editable                                                    |

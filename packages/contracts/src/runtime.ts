@@ -26,9 +26,30 @@ export interface RuntimeAPI {
   /** Get a job by ID. */
   getJob(id: string): Promise<Job | undefined>;
 
-  /** Get/set arbitrary state (JSON key-value). */
+  /** Get/set arbitrary state (JSON key-value, scoped by providerId). */
   getState(namespace: string, key: string): Promise<unknown>;
   setState(namespace: string, key: string, value: unknown): Promise<void>;
+
+  /** Query state entries with pagination and ordering. */
+  stateQuery(
+    namespace: string,
+    opts?: {
+      prefix?: string;
+      limit?: number;
+      offset?: number;
+      orderBy?: "key" | "updatedAt";
+      order?: "asc" | "desc";
+    },
+  ): Promise<Array<{ key: string; data: unknown; updatedAt: string }>>;
+
+  /** Delete a state entry. Returns true if the key existed. */
+  stateDelete(namespace: string, key: string): Promise<boolean>;
+
+  /** Set multiple state entries atomically. */
+  stateBatchSet(
+    namespace: string,
+    entries: Array<{ key: string; data: unknown }>,
+  ): Promise<void>;
 
   /** Register additional tools at runtime (from plugins/drivers). */
   registerTools(tools: ToolDefinition[]): void;

@@ -21,5 +21,8 @@
   "dependencies": {
     "@agent-adapter/contracts": "workspace:*",
     "@open-wallet-standard/core": "^1.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2"
   }
 }

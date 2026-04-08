@@ -272,7 +272,7 @@ Maps to: F01, F03, F05, F07, F14, F16
 - [x] Contracts package: all interfaces and types
 - [x] Core config loader: YAML parsing, env var resolution, validation with Zod
 - [x] Database abstraction: Drizzle schema, SQLite adapter, Postgres adapter, `createDb()` factory
-- [ ] Wallet module: WalletRegistry implementation, wallet-ows plugin (default, multi-chain via OWS), wallet-solana plugin (fallback, Solana-only via tweetnacl), import support, AES-256-GCM encrypted persistence
+- [x] Wallet module: WalletRegistry implementation, wallet-ows plugin (default, multi-chain via OWS), wallet-solana plugin (fallback, Solana-only via tweetnacl), import support, AES-256-GCM encrypted persistence
 - [x] Secrets store: encrypted credential storage with provider-scoped keys
 - [x] State store: JSON key-value persistence
 - [x] Capability registry: in-memory registry, OpenAPI spec parser, manual definition loader, MCP fetcher

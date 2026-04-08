@@ -18,7 +18,12 @@ export {
   PAYMENT_STATUSES,
 } from "./constants.js";
 
-export type { WalletPlugin, WalletRegistry } from "./wallet.js";
+export type {
+  WalletPlugin,
+  WalletRegistry,
+  WalletPluginInit,
+  WalletPluginFactory,
+} from "./wallet.js";
 
 export type {
   PaymentChallenge,

@@ -41,3 +41,19 @@ export interface WalletRegistry {
   /** Check if a wallet plugin is configured for the given chain. */
   has(chain: string): boolean;
 }
+
+/** Returned by a plugin factory after initialisation. */
+export interface WalletPluginInit {
+  plugin: WalletPlugin;
+  publicKey: string;
+  /** Raw secret key bytes for registry-managed persistence. Absent for vault-managed plugins (e.g. OWS). */
+  secretKey?: Uint8Array;
+  /** Chain families this plugin handles (for multi-chain plugins like OWS). */
+  supportedChains?: string[];
+}
+
+/** Factory function that wallet plugins export. */
+export type WalletPluginFactory = (opts: {
+  secretKeyBytes?: Uint8Array;
+  importKeyString?: string;
+}) => Promise<WalletPluginInit>;

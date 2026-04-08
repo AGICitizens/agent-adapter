@@ -201,7 +201,6 @@ Before merging a feature that affects runtime behavior:
 
 As the codebase grows, add these next:
 
-- true runtime bootstrap integration tests once `createRuntime()` exists
 - Postgres integration tests once hosted mode exists
 - x402 retry-flow integration tests once the adapter exists
 - agent-loop integration tests with a deterministic fake model once the agent package is implemented

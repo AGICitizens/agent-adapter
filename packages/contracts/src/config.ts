@@ -109,23 +109,43 @@ export const secretsConfigSchema = z.object({
   encryptionKey: z.string().length(64),
 });
 
-export const adapterConfigSchema = z.object({
-  name: z.string(),
-  mode: z.enum(["hosted", "self-hosted"]).default("self-hosted"),
+export const adapterConfigSchema = z
+  .object({
+    name: z.string(),
+    mode: z.enum(["hosted", "self-hosted"]).default("self-hosted"),
 
-  database: databaseConfigSchema.default({}),
-  wallet: walletConfigSchema,
-  server: serverConfigSchema.default({}),
-  agent: agentConfigSchema.optional().default({}),
+    database: databaseConfigSchema.default({}),
+    wallet: walletConfigSchema,
+    server: serverConfigSchema.default({}),
+    agent: agentConfigSchema.optional().default({}),
 
-  capabilities: z.array(capabilitySourceConfigSchema).default([]),
-  payments: z.array(paymentAdapterConfigSchema).default([]),
-  plugins: z.array(pluginConfigSchema).default([]),
-  /** Platform drivers (e.g. Telegram, Discord) that expose capabilities to end users. */
-  drivers: z.array(driverConfigSchema).default([]),
+    capabilities: z.array(capabilitySourceConfigSchema).default([]),
+    payments: z.array(paymentAdapterConfigSchema).default([]),
+    plugins: z.array(pluginConfigSchema).default([]),
+    /** Platform drivers (e.g. Telegram, Discord) that expose capabilities to end users. */
+    drivers: z.array(driverConfigSchema).default([]),
 
-  secrets: secretsConfigSchema.optional(),
-});
+    secrets: secretsConfigSchema.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.mode === "hosted") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Hosted mode is planned but not implemented yet. Use mode: "self-hosted" for now.',
+        path: ["mode"],
+      });
+    }
+
+    if (value.database.driver === "postgres") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Postgres support is planned but not implemented yet. Use database.driver: "sqlite" for now.',
+        path: ["database", "driver"],
+      });
+    }
+  });
 
 export type AdapterConfig = z.infer<typeof adapterConfigSchema>;
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;

@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
+import { and, eq } from "drizzle-orm";
 import { createToolHandlers, ToolNotFoundError } from "../index.js";
 import type { ToolHandlers } from "../index.js";
 import { createSqlite } from "../../db/sqlite.js";
@@ -15,8 +16,15 @@ import type {
   ToolPlugin,
 } from "@agent-adapter/contracts";
 
+vi.mock("../http-client.js", () => ({
+  httpRequest: vi.fn(),
+}));
+
+import { httpRequest } from "../http-client.js";
+
 let conn: DatabaseConnection;
 let handlers: ToolHandlers;
+const mockedHttpRequest = vi.mocked(httpRequest);
 
 const PROVIDER_ID = "tools-test";
 const ENC_KEY_HEX =
@@ -245,6 +253,73 @@ describe("ToolHandlers", () => {
     expect(result.balance).toEqual({ SOL: 1.5 });
   });
 
+  it("wallet tools forward the requested chain to multi-chain plugins", async () => {
+    const chainAwarePlugin: WalletPlugin = {
+      id: "wallet-ows",
+      chain: "ows",
+      async getAddress(chain?: string) {
+        return chain === "evm" ? "0xabc" : "So111";
+      },
+      async getBalance(chain?: string) {
+        return chain === "evm"
+          ? ({ ETH: 1 } as Record<string, number>)
+          : ({ SOL: 2 } as Record<string, number>);
+      },
+      async signMessage(_msg: Uint8Array, chain?: string) {
+        return new TextEncoder().encode(chain ?? "missing");
+      },
+      async signTransaction(tx: Uint8Array) {
+        return tx;
+      },
+    };
+
+    const chainAwareRegistry: WalletRegistry = {
+      get() {
+        return chainAwarePlugin;
+      },
+      list() {
+        return [chainAwarePlugin];
+      },
+      primary() {
+        return chainAwarePlugin;
+      },
+      has() {
+        return true;
+      },
+    };
+
+    const chainHandlers = createToolHandlers({
+      provider: { providerId: PROVIDER_ID },
+      capabilities: createCapabilityRegistry(conn, PROVIDER_ID, []),
+      wallets: chainAwareRegistry,
+      secrets: createSecretsStore(
+        conn,
+        PROVIDER_ID,
+        parseEncryptionKey(ENC_KEY_HEX),
+      ),
+      state: createStateStore(conn, PROVIDER_ID),
+      jobs: createJobEngine(conn, PROVIDER_ID),
+      payments: createPaymentRegistry(),
+    });
+
+    const address = await chainHandlers.execute("wallet__address", {
+      chain: "evm",
+    });
+    const balance = await chainHandlers.execute("wallet__balance", {
+      chain: "evm",
+    });
+    const signed = await chainHandlers.execute("wallet__sign_message", {
+      chain: "evm",
+      message: "hello",
+    });
+
+    expect(address.address).toBe("0xabc");
+    expect(balance.balance).toEqual({ ETH: 1 });
+    expect(Buffer.from(signed.signature as string, "hex").toString("utf-8")).toBe(
+      "evm",
+    );
+  });
+
   it("wallet__sign_message returns hex signature", async () => {
     const result = await handlers.execute("wallet__sign_message", {
       message: "hello",
@@ -268,6 +343,77 @@ describe("ToolHandlers", () => {
         },
       }),
     ).rejects.toThrow("No payment adapter found");
+  });
+
+  it("capability execution resolves path/query/body correctly", async () => {
+    mockedHttpRequest.mockReset();
+    mockedHttpRequest.mockResolvedValueOnce({
+      status: 200,
+      headers: { "content-type": "application/json" },
+      body: { ok: true },
+    });
+
+    const capRegistry = createCapabilityRegistry(conn, PROVIDER_ID, [
+      {
+        type: "manual",
+        definitions: [
+          {
+            name: "pet-update",
+            description: "Update a pet",
+            method: "POST",
+            url: "https://api.example.com/pets/{petId}",
+            bodyTemplate: { $ref: "input.body" },
+          },
+        ],
+      },
+    ]);
+    await capRegistry.refresh();
+
+    const { db } = conn;
+    const { capabilities } = await import("../../db/schema/index.js");
+    db.update(capabilities)
+      .set({
+        enabled: true,
+        pricingModel: "per_call",
+        pricingAmount: 1,
+        pricingCurrency: "USDC",
+      })
+      .where(
+        and(
+          eq(capabilities.providerId, PROVIDER_ID),
+          eq(capabilities.name, "pet-update"),
+        ),
+      )
+      .run();
+    await capRegistry.refresh();
+
+    const capHandlers = createToolHandlers({
+      provider: { providerId: PROVIDER_ID },
+      capabilities: capRegistry,
+      wallets: mockWalletRegistry,
+      secrets: createSecretsStore(
+        conn,
+        PROVIDER_ID,
+        parseEncryptionKey(ENC_KEY_HEX),
+      ),
+      state: createStateStore(conn, PROVIDER_ID),
+      jobs: createJobEngine(conn, PROVIDER_ID),
+      payments: createPaymentRegistry(),
+    });
+
+    await capHandlers.execute("cap__pet-update", {
+      petId: 123,
+      verbose: true,
+      body: { name: "Milo" },
+    });
+
+    expect(mockedHttpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "POST",
+        url: "https://api.example.com/pets/123?verbose=true",
+        body: { name: "Milo" },
+      }),
+    );
   });
 
   it("registerPlugin adds plugin tools to dispatch", async () => {

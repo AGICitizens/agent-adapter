@@ -15,7 +15,7 @@ export async function createDb(
 ): Promise<DatabaseConnection> {
   if (config.driver === "postgres") {
     throw new Error(
-      "Postgres adapter is not yet implemented. Use SQLite for self-hosted mode.",
+      "Hosted/Postgres mode is not implemented yet. Use self-hosted SQLite for now.",
     );
   }
 

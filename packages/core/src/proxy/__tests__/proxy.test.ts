@@ -20,6 +20,7 @@ const mockedHttpRequest = vi.mocked(httpRequest);
 let conn: DatabaseConnection;
 let proxy: ProxyEngine;
 let paymentRegistry: ReturnType<typeof createPaymentRegistry>;
+let capRegistry: ReturnType<typeof createCapabilityRegistry>;
 
 const PROVIDER_ID = "proxy-test";
 
@@ -36,7 +37,7 @@ beforeAll(async () => {
 
   paymentRegistry = createPaymentRegistry();
 
-  const capRegistry = createCapabilityRegistry(conn, PROVIDER_ID, [
+  capRegistry = createCapabilityRegistry(conn, PROVIDER_ID, [
     {
       type: "manual",
       definitions: [
@@ -91,14 +92,64 @@ describe("ProxyEngine", () => {
     expect((res.body as Record<string, unknown>).error).toBe("capability_not_found");
   });
 
-  it("returns 403 for disabled capability", async () => {
+  it("returns 404 for disabled capability", async () => {
     const res = await proxy.handleRequest({
       capabilityName: "disabled-cap",
       method: "GET",
       headers: {},
     });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(404);
     expect((res.body as Record<string, unknown>).error).toBe("capability_disabled");
+  });
+
+  it("returns 503 when pricing is missing", async () => {
+    const { db } = conn;
+    const { capabilities } = await import("../../db/schema/index.js");
+    try {
+      db.update(capabilities)
+        .set({
+          enabled: true,
+          pricingModel: null,
+          pricingAmount: null,
+          pricingCurrency: null,
+        })
+        .where(
+          and(
+            eq(capabilities.providerId, PROVIDER_ID),
+            eq(capabilities.name, "translate"),
+          ),
+        )
+        .run();
+      await capRegistry.refresh();
+
+      const res = await proxy.handleRequest({
+        capabilityName: "translate",
+        method: "POST",
+        headers: {},
+        body: { text: "hello" },
+      });
+
+      expect(res.status).toBe(503);
+      expect((res.body as Record<string, unknown>).error).toBe(
+        "pricing_not_configured",
+      );
+    } finally {
+      db.update(capabilities)
+        .set({
+          enabled: true,
+          pricingModel: "per_call",
+          pricingAmount: 0.01,
+          pricingCurrency: "USDC",
+        })
+        .where(
+          and(
+            eq(capabilities.providerId, PROVIDER_ID),
+            eq(capabilities.name, "translate"),
+          ),
+        )
+        .run();
+      await capRegistry.refresh();
+    }
   });
 
   it("returns 402 with pricing when no payment proof", async () => {
@@ -170,6 +221,7 @@ describe("ProxyEngine", () => {
       expect.objectContaining({
         method: "POST",
         url: "https://api.example.com/translate",
+        responseMode: "proxy",
       }),
     );
   });

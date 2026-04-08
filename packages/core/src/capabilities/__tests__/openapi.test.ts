@@ -17,6 +17,12 @@ describe("parseOpenApiSpec", () => {
     expect(names).toContain("createPet");
   });
 
+  it("parses YAML OpenAPI specs", async () => {
+    const caps = await parseOpenApiSpec(fixture("petstore.yaml"));
+    expect(caps.map((c) => c.name)).toContain("listPets");
+    expect(caps.map((c) => c.name)).toContain("createPet");
+  });
+
   it("generates name from method_path when no operationId", async () => {
     const caps = await parseOpenApiSpec(fixture("petstore.json"));
     const getPet = caps.find((c) => c.name === "get_pets_petId");

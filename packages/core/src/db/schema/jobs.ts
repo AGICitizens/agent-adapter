@@ -18,6 +18,7 @@ export const jobs = sqliteTable(
     platform: text("platform").notNull(),
     platformRef: text("platform_ref").notNull(),
     status: text("status").notNull(),
+    errorDetail: text("error_detail"),
     inputHash: text("input_hash"),
     outputHash: text("output_hash"),
     paymentProtocol: text("payment_protocol"),

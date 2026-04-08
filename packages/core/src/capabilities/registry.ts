@@ -122,6 +122,9 @@ export const createCapabilityRegistry = (
       if (toUpsert.length > 0) {
         store.upsertBatch(toUpsert);
       }
+      if (stale.length > 0) {
+        store.deleteMany(stale);
+      }
 
       // Reload cache from DB
       cache = new Map();

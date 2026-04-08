@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import type { Capability, PricingConfig } from "@agent-adapter/contracts";
 import type { DatabaseConnection } from "../db/index.js";
 import { schema } from "../db/index.js";
@@ -10,6 +10,7 @@ export interface CapabilityStore {
   upsert(cap: Capability): void;
   upsertBatch(caps: Capability[]): void;
   setEnabled(name: string, enabled: boolean): void;
+  deleteMany(names: string[]): void;
 }
 
 type CapabilityRow = typeof schema.capabilities.$inferSelect;
@@ -203,6 +204,19 @@ export const createCapabilityStore = (
           and(
             eq(capabilities.providerId, providerId),
             eq(capabilities.name, name),
+          ),
+        )
+        .run();
+    },
+
+    deleteMany(names) {
+      if (names.length === 0) return;
+
+      db.delete(capabilities)
+        .where(
+          and(
+            eq(capabilities.providerId, providerId),
+            inArray(capabilities.name, names),
           ),
         )
         .run();

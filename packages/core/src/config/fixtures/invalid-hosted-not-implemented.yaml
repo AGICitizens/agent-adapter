@@ -1,0 +1,9 @@
+name: full-adapter
+mode: hosted
+database:
+  driver: postgres
+  url: postgres://localhost:5432/test
+wallet:
+  plugin: wallet-evm
+server:
+  port: 8080

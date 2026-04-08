@@ -13,6 +13,7 @@ export interface HttpRequestOptions {
   headers?: Record<string, string>;
   body?: unknown;
   timeout?: number;
+  responseMode?: "parsed" | "proxy";
 }
 
 export interface HttpResponse {
@@ -34,6 +35,8 @@ export async function httpRequest(
   if (opts.body !== undefined && opts.body !== null) {
     if (typeof opts.body === "string") {
       fetchBody = opts.body;
+    } else if (opts.body instanceof Uint8Array) {
+      fetchBody = undefined;
     } else {
       fetchBody = JSON.stringify(opts.body);
       if (!headers.has("content-type")) {
@@ -46,7 +49,10 @@ export async function httpRequest(
     const res = await fetch(opts.url, {
       method: opts.method,
       headers,
-      body: fetchBody,
+      body:
+        opts.body instanceof Uint8Array
+          ? Buffer.from(opts.body)
+          : fetchBody,
       signal: controller.signal,
     });
 
@@ -60,9 +66,16 @@ export async function httpRequest(
     const contentType = res.headers.get("content-type") ?? "";
     const raw = await res.arrayBuffer();
     const truncated = raw.byteLength > MAX_BODY_BYTES;
-    const text = new TextDecoder().decode(
-      truncated ? raw.slice(0, MAX_BODY_BYTES) : raw,
-    );
+    const sliced = truncated ? raw.slice(0, MAX_BODY_BYTES) : raw;
+    const text = new TextDecoder().decode(sliced);
+
+    if (opts.responseMode === "proxy") {
+      return {
+        status: res.status,
+        headers: resHeaders,
+        body: Uint8Array.from(new Uint8Array(sliced)),
+      };
+    }
 
     let body: unknown;
     if (contentType.includes("application/json")) {

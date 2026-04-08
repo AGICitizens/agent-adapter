@@ -69,7 +69,10 @@ export const createJobsHandlers = (jobs: JobEngine): HandlerGroup => ({
       description: "Transition a job from executing to failed",
       parameters: {
         type: "object",
-        properties: { id: { type: "string" } },
+        properties: {
+          id: { type: "string" },
+          errorDetail: { type: "string" },
+        },
         required: ["id"],
       },
     },
@@ -116,7 +119,9 @@ export const createJobsHandlers = (jobs: JobEngine): HandlerGroup => ({
         return { job };
       }
       case "jobs__fail": {
-        const job = await jobs.transition(args.id as string, "failed");
+        const job = await jobs.transition(args.id as string, "failed", {
+          errorDetail: args.errorDetail as string | undefined,
+        });
         return { job };
       }
       case "jobs__pending": {

@@ -9,11 +9,13 @@ import type { ProviderContext, JobEngine, PaymentChallenge } from "@agent-adapte
 import type { CapabilityRegistry } from "../capabilities/registry.js";
 import type { PaymentRegistry } from "../payments/index.js";
 import { httpRequest } from "../tools/http-client.js";
+import { buildCapabilityRequest } from "../tools/capability-request.js";
 
 export interface ProxyRequest {
   capabilityName: string;
   method: string;
   headers: Record<string, string>;
+  query?: Record<string, unknown>;
   body?: unknown;
 }
 
@@ -58,13 +60,24 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
       // 2. Check enabled
       if (!cap.enabled) {
         return {
-          status: 403,
+          status: 404,
           headers: {},
           body: { error: "capability_disabled", capability: req.capabilityName },
         };
       }
 
-      // 3. Payment enforcement — only when capability has pricing
+      if (!cap.pricing) {
+        return {
+          status: 503,
+          headers: {},
+          body: {
+            error: "pricing_not_configured",
+            capability: req.capabilityName,
+          },
+        };
+      }
+
+      // 3. Payment enforcement
       if (cap.pricing) {
         const proof = extractPaymentProof(req.headers);
         const adapterIds = payments.list();
@@ -125,22 +138,21 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
       await jobs.transition(job.id, "executing");
 
       // 5. Forward to target service
-      const { executionPlan } = cap;
-      const headers: Record<string, string> = { ...executionPlan.headers };
-
-      let body: unknown;
-      if (executionPlan.bodyTemplate) {
-        body = { ...executionPlan.bodyTemplate, ...(req.body as Record<string, unknown> ?? {}) };
-      } else if (req.body !== undefined) {
-        body = req.body;
-      }
+      const input =
+        typeof req.body === "object" &&
+        req.body !== null &&
+        !Array.isArray(req.body) &&
+        !(req.body instanceof Uint8Array)
+          ? { ...(req.query ?? {}), ...(req.body as Record<string, unknown>) }
+          : { ...(req.query ?? {}) };
+      const request = buildCapabilityRequest(cap.executionPlan, input, {
+        fallbackBody: req.body,
+      });
 
       try {
         const response = await httpRequest({
-          method: executionPlan.method,
-          url: executionPlan.url,
-          headers,
-          body,
+          ...request,
+          responseMode: "proxy",
         });
 
         // 6. Complete job
@@ -153,7 +165,9 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
         };
       } catch (err) {
         // 7. Fail job on network/timeout error
-        await jobs.transition(job.id, "failed");
+        await jobs.transition(job.id, "failed", {
+          errorDetail: err instanceof Error ? err.message : "Unknown error",
+        });
 
         return {
           status: 502,

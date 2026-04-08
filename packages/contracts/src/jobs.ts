@@ -53,7 +53,7 @@ export interface JobEngine {
   transition(
     id: string,
     to: JobStatus,
-    opts?: { outputHash?: string },
+    opts?: { outputHash?: string; errorDetail?: string },
   ): Promise<Job>;
 
   /** Update payment info on a job. */

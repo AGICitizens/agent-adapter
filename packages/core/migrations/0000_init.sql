@@ -57,6 +57,7 @@ CREATE TABLE `jobs` (
 	`platform` text NOT NULL,
 	`platform_ref` text NOT NULL,
 	`status` text NOT NULL,
+	`error_detail` text,
 	`input_hash` text,
 	`output_hash` text,
 	`payment_protocol` text,

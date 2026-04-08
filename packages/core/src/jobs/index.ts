@@ -51,6 +51,7 @@ const toJob = (row: JobRow): Job => ({
   platformRef: row.platformRef,
   // Safe casts — DB CHECK constraints guarantee valid enum values
   status: row.status as JobStatus,
+  errorDetail: row.errorDetail,
   inputHash: row.inputHash,
   outputHash: row.outputHash,
   paymentProtocol: row.paymentProtocol,
@@ -149,7 +150,7 @@ export const createJobEngine = (
     async transition(
       id: string,
       to: JobStatus,
-      opts?: { outputHash?: string },
+      opts?: { outputHash?: string; errorDetail?: string },
     ): Promise<Job> {
       const row = db
         .select()
@@ -167,6 +168,9 @@ export const createJobEngine = (
       const set: Record<string, unknown> = { status: to };
       if (to === "completed" || to === "failed") {
         set.completedAt = new Date().toISOString();
+      }
+      if (to === "failed") {
+        set.errorDetail = opts?.errorDetail ?? "Unknown error";
       }
       if (opts?.outputHash) {
         set.outputHash = opts.outputHash;

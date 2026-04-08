@@ -51,6 +51,7 @@ export interface Job {
   readonly platform: string;
   readonly platformRef: string;
   readonly status: JobStatus;
+  readonly errorDetail: string | null;
   readonly inputHash: string | null;
   readonly outputHash: string | null;
   readonly paymentProtocol: string | null;

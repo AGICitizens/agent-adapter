@@ -76,4 +76,23 @@ describe("Server proxy routes", () => {
     const body = await res.json();
     expect(body.error).toBe("payment_required");
   });
+
+  it("returns plain text bodies without forcing JSON", async () => {
+    const engine = createMockProxyEngine(() =>
+      mockResponse({
+        headers: { "content-type": "text/plain" },
+        body: "hello world",
+      }),
+    );
+
+    const { app } = createServer(
+      { proxyEngine: engine },
+      { host: "127.0.0.1", port: 0, dashboard: false },
+    );
+
+    const res = await app.request("/proxy/text");
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("hello world");
+    expect(res.headers.get("content-type")).toContain("text/plain");
+  });
 });

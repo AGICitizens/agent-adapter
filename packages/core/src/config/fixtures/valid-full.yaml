@@ -1,8 +1,8 @@
 name: full-adapter
-mode: hosted
+mode: self-hosted
 database:
-  driver: postgres
-  url: postgres://localhost:5432/test
+  driver: sqlite
+  path: ./adapter.db
 wallet:
   plugin: wallet-evm
   chains:

@@ -30,9 +30,9 @@ describe("loadConfig", () => {
   it("parses full config with all fields", () => {
     const cfg = loadConfig(fixture("valid-full.yaml"));
 
-    expect(cfg.mode).toBe("hosted");
-    expect(cfg.database.driver).toBe("postgres");
-    expect(cfg.database.url).toBe("postgres://localhost:5432/test");
+    expect(cfg.mode).toBe("self-hosted");
+    expect(cfg.database.driver).toBe("sqlite");
+    expect(cfg.database.path).toBe("./adapter.db");
     expect(cfg.wallet.chains).toEqual(["eip155:1", "eip155:137"]);
     expect(cfg.server.port).toBe(8080);
     expect(cfg.agent.enabled).toBe(true);
@@ -80,6 +80,12 @@ describe("loadConfig", () => {
 
   it("throws on invalid enum value for mode", () => {
     expect(() => loadConfig(fixture("invalid-bad-enum.yaml"))).toThrow();
+  });
+
+  it("throws when hosted/postgres mode is requested before implementation", () => {
+    expect(() =>
+      loadConfig(fixture("invalid-hosted-not-implemented.yaml")),
+    ).toThrow('Hosted mode is planned but not implemented yet');
   });
 
   it("throws on invalid port type", () => {

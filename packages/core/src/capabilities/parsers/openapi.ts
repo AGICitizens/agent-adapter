@@ -1,6 +1,7 @@
 import SwaggerParser from "@apidevtools/swagger-parser";
 import type { OpenAPIV3 } from "openapi-types";
 import type { Capability } from "@agent-adapter/contracts";
+import { parse as parseYaml } from "yaml";
 import { CapabilityParseError } from "../errors.js";
 
 const METHODS = ["get", "post", "put", "patch", "delete"] as const;
@@ -23,8 +24,16 @@ export const parseOpenApiSpec = async (
 ): Promise<Capability[]> => {
   let api: OpenAPIV3.Document;
   try {
+    const parsedSpec = (() => {
+      try {
+        return JSON.parse(rawSpec);
+      } catch {
+        return parseYaml(rawSpec);
+      }
+    })();
+
     api = (await SwaggerParser.dereference(
-      JSON.parse(rawSpec),
+      parsedSpec,
     )) as OpenAPIV3.Document;
   } catch (err) {
     throw new CapabilityParseError(

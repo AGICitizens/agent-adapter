@@ -123,6 +123,7 @@ describe("JobEngine", () => {
 
     expect(failed.status).toBe("failed");
     expect(failed.completedAt).toBeTruthy();
+    expect(failed.errorDetail).toBe("Unknown error");
   });
 
   it("transition pending → completed throws InvalidJobTransitionError", async () => {
@@ -187,6 +188,21 @@ describe("JobEngine", () => {
     });
 
     expect(completed.outputHash).toBe("out-hash-xyz");
+  });
+
+  it("transition to failed stores error detail when provided", async () => {
+    const engine = createJobEngine(conn, "job-14");
+    const job = await engine.create({
+      capabilityName: "cap",
+      platform: "plat",
+      platformRef: "ref-fail",
+    });
+    await engine.transition(job.id, "executing");
+    const failed = await engine.transition(job.id, "failed", {
+      errorDetail: "target timed out",
+    });
+
+    expect(failed.errorDetail).toBe("target timed out");
   });
 
   it("list returns jobs for provider", async () => {

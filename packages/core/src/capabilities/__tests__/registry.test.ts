@@ -136,6 +136,8 @@ describe("CapabilityRegistry", () => {
     expect(result.added).toContain("new-only");
     expect(result.stale).toContain("listPets");
     expect(result.stale).toContain("createPet");
+    expect(registry.getCapability("listPets")).toBeUndefined();
+    expect(registry.getCapability("createPet")).toBeUndefined();
   });
 
   it("inferred source throws not implemented", async () => {

@@ -42,18 +42,18 @@ export const createWalletHandlers = (wallets: WalletRegistry): HandlerGroup => (
       );
     }
 
-    switch (toolName) {
+      switch (toolName) {
       case "wallet__address": {
-        const address = await plugin.getAddress();
+        const address = await plugin.getAddress(chain);
         return { address, chain: plugin.chain };
       }
       case "wallet__balance": {
-        const balance = await plugin.getBalance();
+        const balance = await plugin.getBalance(chain);
         return { balance, chain: plugin.chain };
       }
       case "wallet__sign_message": {
         const encoded = new TextEncoder().encode(args.message as string);
-        const signature = await plugin.signMessage(encoded);
+        const signature = await plugin.signMessage(encoded, chain);
         // Return signature as hex
         const hex = Buffer.from(signature).toString("hex");
         return { signature: hex, chain: plugin.chain };

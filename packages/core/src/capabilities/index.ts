@@ -3,4 +3,8 @@
  * Does not set pricing — only discovers and stores.
  */
 
-export {};
+export { createCapabilityRegistry } from "./registry.js";
+export type { CapabilityRegistry, SyncResult } from "./registry.js";
+export { createCapabilityStore } from "./store.js";
+export type { CapabilityStore } from "./store.js";
+export { CapabilityParseError, PricingRequiredError } from "./errors.js";

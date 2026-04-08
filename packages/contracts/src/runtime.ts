@@ -3,9 +3,10 @@
  * Plugins receive this during initialization. Never exposes core internals.
  */
 
-import type { Capability, Job, ProviderContext, ToolDefinition } from "./types.js";
+import type { Capability, Job, ProviderContext } from "./types.js";
 import type { WalletRegistry } from "./wallet.js";
 import type { SecretsBackend } from "./secrets.js";
+import type { ToolPlugin } from "./tool-plugins.js";
 
 export interface RuntimeAPI {
   /** Current provider context. */
@@ -51,6 +52,6 @@ export interface RuntimeAPI {
     entries: Array<{ key: string; data: unknown }>,
   ): Promise<void>;
 
-  /** Register additional tools at runtime (from plugins/drivers). */
-  registerTools(tools: ToolDefinition[]): void;
+  /** Register a plugin's tools and executor into the runtime dispatch. */
+  registerTools(plugin: ToolPlugin): void;
 }

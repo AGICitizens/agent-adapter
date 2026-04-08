@@ -18,7 +18,7 @@ Tasks ordered for incremental development — each builds on what came before.
 - [x] 2.1 — Job engine: 4-state lifecycle (pending → executing → completed/failed), payment status linking
 - [x] 2.2 — Payment registry: adapter loading, challenge resolution by type
 - [x] 2.3 — payment-free plugin: no-op adapter for testing
-- [ ] 2.4 — Tool handlers: capability execution, HTTP client, wallet/secrets/state ops
+- [x] 2.4 — Tool handlers: capability execution, HTTP client, wallet/secrets/state ops
 - [ ] 2.5 — Reverse proxy mode: inbound request handling, pricing enforcement, payment resolution, target forwarding
 - [ ] 2.6 — Management REST API: all `/manage/*` endpoints (Hono)
 - [ ] 2.7 — Capability execution API: `POST /api/v1/capabilities/:name/execute`

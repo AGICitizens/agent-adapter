@@ -2,6 +2,8 @@
  * Core domain types shared across all packages.
  */
 
+import type { JOB_STATUSES, PAYMENT_STATUSES } from "./constants.js";
+
 export interface ProviderContext {
   readonly providerId: string;
 }
@@ -38,7 +40,9 @@ export interface ExecutionPlan {
   readonly bodyTemplate?: Record<string, unknown>;
 }
 
-export type JobStatus = "pending" | "executing" | "completed" | "failed";
+export type JobStatus = (typeof JOB_STATUSES)[number];
+
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export interface Job {
   readonly id: string;
@@ -47,9 +51,15 @@ export interface Job {
   readonly platform: string;
   readonly platformRef: string;
   readonly status: JobStatus;
-  readonly paymentStatus: string | null;
+  readonly inputHash: string | null;
+  readonly outputHash: string | null;
+  readonly paymentProtocol: string | null;
+  readonly paymentStatus: PaymentStatus | null;
   readonly paymentAmount: number | null;
   readonly paymentCurrency: string | null;
+  readonly llmInputTokens: number | null;
+  readonly llmOutputTokens: number | null;
+  readonly llmEstimatedCost: number | null;
   readonly createdAt: string;
   readonly completedAt: string | null;
 }

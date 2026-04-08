@@ -6,16 +6,16 @@ Tasks ordered for incremental development — each builds on what came before.
 
 - [x] 1.1 — Config loader: YAML parsing, env var resolution (`${VAR}`), Zod validation
 - [x] 1.2 — Database abstraction: Drizzle schema, SQLite adapter, `createDb()` factory
-- [ ] 1.3 — Secrets store: AES-256-GCM encrypted credential storage, provider-scoped keys
-- [ ] 1.4 — State store: JSON key-value persistence
-- [ ] 1.5 — Wallet module: WalletRegistry, wallet-solana plugin, encrypted persistence
-- [ ] 1.6 — Capability registry: in-memory registry, OpenAPI parser, manual definition loader
-- [ ] 1.7 — Spec change detection: content hash comparison, new/changed/stale flagging
+- [x] 1.3 — Secrets store: AES-256-GCM encrypted credential storage, provider-scoped keys
+- [x] 1.4 — State store: JSON key-value persistence
+- [x] 1.5 — Wallet module: WalletRegistry, wallet-solana plugin, encrypted persistence
+- [x] 1.6 — Capability registry: in-memory registry, OpenAPI parser, manual definition loader
+- [x] 1.7 — Spec change detection: content hash comparison, new/changed/stale flagging
 - [ ] 1.8 — `createRuntime()` factory: wire config → DB → secrets → state → wallet → capabilities
 
 ## Phase 2 — Payment Proxy (v0.2)
 
-- [ ] 2.1 — Job engine: 4-state lifecycle (pending → executing → completed/failed), payment status linking
+- [x] 2.1 — Job engine: 4-state lifecycle (pending → executing → completed/failed), payment status linking
 - [ ] 2.2 — Payment registry: adapter loading, challenge resolution by type
 - [ ] 2.3 — payment-free plugin: no-op adapter for testing
 - [ ] 2.4 — Tool handlers: capability execution, HTTP client, wallet/secrets/state ops

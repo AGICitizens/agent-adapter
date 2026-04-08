@@ -6,9 +6,19 @@ export type {
   Capability,
   ExecutionPlan,
   JobStatus,
+  PaymentStatus,
   Job,
   ToolDefinition,
 } from "./types.js";
+
+export type {
+  JobEngine,
+  CreateJobInput,
+  JobListFilter,
+  JobListOptions,
+  UpdatePaymentInput,
+  UpdateLlmUsageInput,
+} from "./jobs.js";
 
 export {
   DATABASE_DRIVERS,

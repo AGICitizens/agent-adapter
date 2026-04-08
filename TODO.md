@@ -19,7 +19,7 @@ Tasks ordered for incremental development — each builds on what came before.
 - [x] 2.2 — Payment registry: adapter loading, challenge resolution by type
 - [x] 2.3 — payment-free plugin: no-op adapter for testing
 - [x] 2.4 — Tool handlers: capability execution, HTTP client, wallet/secrets/state ops
-- [ ] 2.5 — Reverse proxy mode: inbound request handling, pricing enforcement, payment resolution, target forwarding
+- [x] 2.5 — Reverse proxy mode: inbound request handling, pricing enforcement, payment resolution, target forwarding
 - [ ] 2.6 — Management REST API: all `/manage/*` endpoints (Hono)
 - [ ] 2.7 — Capability execution API: `POST /api/v1/capabilities/:name/execute`
 - [ ] 2.8 — payment-x402 plugin: multi-chain 402 parsing (CAIP-2), WalletRegistry signing, retry with proof

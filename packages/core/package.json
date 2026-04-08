@@ -6,6 +6,38 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./proxy": {
+      "types": "./dist/proxy/index.d.ts",
+      "import": "./dist/proxy/index.js"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "import": "./dist/tools/index.js"
+    },
+    "./payments": {
+      "types": "./dist/payments/index.d.ts",
+      "import": "./dist/payments/index.js"
+    },
+    "./capabilities": {
+      "types": "./dist/capabilities/registry.d.ts",
+      "import": "./dist/capabilities/registry.js"
+    },
+    "./jobs": {
+      "types": "./dist/jobs/index.d.ts",
+      "import": "./dist/jobs/index.js"
+    },
+    "./store": {
+      "types": "./dist/store/index.d.ts",
+      "import": "./dist/store/index.js"
+    },
+    "./db": {
+      "types": "./dist/db/index.d.ts",
+      "import": "./dist/db/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js"
     }
   },
   "files": [

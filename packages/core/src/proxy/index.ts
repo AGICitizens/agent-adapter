@@ -36,11 +36,14 @@ export interface ProxyEngine {
   handleRequest(req: ProxyRequest): Promise<ProxyResponse>;
 }
 
-/** Extract payment proof from request headers (x-payment or x-payment-proof). */
+/** Extract payment proof from request headers, including x402's PAYMENT-SIGNATURE. */
 const extractPaymentProof = (
   headers: Record<string, string>,
 ): string | undefined =>
-  headers["x-payment"] ?? headers["x-payment-proof"] ?? undefined;
+  headers["payment-signature"] ??
+  headers["x-payment"] ??
+  headers["x-payment-proof"] ??
+  undefined;
 
 export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
   const { capabilities, payments, jobs } = deps;
@@ -83,6 +86,28 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
         const adapterIds = payments.list();
 
         if (!proof) {
+          for (let i = adapterIds.length - 1; i >= 0; i--) {
+            const adapter = payments.get(adapterIds[i]!);
+            if (!adapter?.buildPaymentRequired) continue;
+
+            const protocolChallenge: PaymentChallenge = {
+              type: adapter.id,
+              network: "",
+              payTo: "",
+              amount: cap.pricing.amount.toString(),
+              currency: cap.pricing.currency,
+              resource: `/proxy/${req.capabilityName}`,
+              scheme: "exact",
+            };
+            const paymentRequired =
+              await adapter.buildPaymentRequired(protocolChallenge);
+            return {
+              status: 402,
+              headers: paymentRequired.headers ?? {},
+              body: paymentRequired.body,
+            };
+          }
+
           return {
             status: 402,
             headers: {},
@@ -96,7 +121,7 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
         }
 
         // Build a challenge from pricing for verification
-        const challenge: PaymentChallenge = {
+        const baseChallenge: PaymentChallenge = {
           type: "proxy",
           network: "",
           payTo: "",
@@ -109,8 +134,31 @@ export const createProxyEngine = (deps: ProxyEngineDeps): ProxyEngine => {
         // Try each adapter's verify — first success wins
         let verified = false;
         for (const id of adapterIds) {
-          const adapter = payments.resolve({ ...challenge, type: id });
+          const adapter = payments.resolve({ ...baseChallenge, type: id });
           if (adapter) {
+            let challenge = { ...baseChallenge, type: id };
+            if (adapter.buildPaymentRequired) {
+              const paymentRequired = await adapter.buildPaymentRequired(challenge);
+              const accepts =
+                paymentRequired.body &&
+                typeof paymentRequired.body === "object" &&
+                !Array.isArray(paymentRequired.body) &&
+                Array.isArray(
+                  (paymentRequired.body as { accepts?: unknown[] }).accepts,
+                )
+                  ? (paymentRequired.body as { accepts: Record<string, unknown>[] }).accepts
+                  : undefined;
+              if (accepts) {
+                challenge = {
+                  ...challenge,
+                  extra: {
+                    ...challenge.extra,
+                    accepts,
+                  },
+                };
+              }
+            }
+
             verified = await adapter.verify(proof, challenge);
             if (verified) break;
           }

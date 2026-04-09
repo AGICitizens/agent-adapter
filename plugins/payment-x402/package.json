@@ -20,6 +20,9 @@
   },
   "dependencies": {
     "@agent-adapter/contracts": "workspace:*",
-    "@x402/core": "^2.9.0"
+    "@x402/core": "^2.9.0",
+    "bs58": "^6.0.0",
+    "tweetnacl": "^1.0.3",
+    "viem": "^2.23.0"
   }
 }

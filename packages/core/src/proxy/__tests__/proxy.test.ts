@@ -166,6 +166,70 @@ describe("ProxyEngine", () => {
     expect(body.accepts).toBeDefined();
   });
 
+  it("returns adapter-built x402 requirements when an x402 adapter is registered", async () => {
+    paymentRegistry.register({
+      id: "x402",
+      canHandle: (challenge) => challenge.type === "x402",
+      async pay(challenge) {
+        return {
+          protocol: "x402",
+          network: challenge.network,
+          amount: challenge.amount,
+          currency: challenge.currency,
+          txHash: null,
+          proof: "proof",
+          timestamp: new Date().toISOString(),
+        };
+      },
+      async verify() {
+        return true;
+      },
+      async buildPaymentRequired(challenge) {
+        return {
+          headers: { "payment-required": "encoded-header" },
+          body: {
+            x402Version: 2,
+            error: "payment_required",
+            resource: { scheme: "http", resource: challenge.resource },
+            accepts: [
+              {
+                scheme: "exact",
+                network: "solana:mainnet",
+                amount: challenge.amount,
+                asset: challenge.currency,
+                payTo: "sol-provider",
+              },
+            ],
+          },
+        };
+      },
+    });
+
+    const res = await proxy.handleRequest({
+      capabilityName: "translate",
+      method: "POST",
+      headers: {},
+      body: { text: "hello" },
+    });
+
+    expect(res.status).toBe(402);
+    expect(res.headers["payment-required"]).toBe("encoded-header");
+    expect(res.body).toEqual({
+      x402Version: 2,
+      error: "payment_required",
+      resource: { scheme: "http", resource: "/proxy/translate" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: "solana:mainnet",
+          amount: "0.01",
+          asset: "USDC",
+          payTo: "sol-provider",
+        },
+      ],
+    });
+  });
+
   it("returns 402 when payment proof is invalid", async () => {
     // Register an adapter that rejects all proofs
     const rejectAdapter: PaymentAdapter = {

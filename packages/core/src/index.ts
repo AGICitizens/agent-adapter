@@ -10,9 +10,11 @@ import { pathToFileURL } from "node:url";
 import type {
   AdapterConfig,
   PaymentAdapter,
+  PaymentAdapterConfig,
   ProviderContext,
   RuntimeAPI,
   ToolPlugin,
+  WalletRegistry,
   WalletPluginFactory,
 } from "@agent-adapter/contracts";
 import { createCapabilityRegistry, type CapabilityRegistry } from "./capabilities/index.js";
@@ -153,9 +155,13 @@ const loadBundledWalletFactory = async (
 };
 
 const loadBundledPaymentAdapter = async (
-  type: string,
+  adapterConfig: PaymentAdapterConfig,
+  opts: {
+    wallets: WalletRegistry;
+    walletChains?: string[];
+  },
 ): Promise<PaymentAdapter> => {
-  const normalized = type.toLowerCase();
+  const normalized = adapterConfig.type.toLowerCase();
 
   if (
     normalized === "free" ||
@@ -183,11 +189,45 @@ const loadBundledPaymentAdapter = async (
     normalized === "payment-x402" ||
     normalized === "@agent-adapter/payment-x402"
   ) {
-    throw new Error("payment-x402 is planned but not implemented yet");
+    const [x402DistEntry, x402SrcEntry] = repoPluginEntryCandidates([
+      "plugins",
+      "payment-x402",
+    ]);
+    const module =
+      (await tryImport("@agent-adapter/payment-x402")) ??
+      (await tryImport(x402DistEntry)) ??
+      (await tryImport(x402SrcEntry));
+    const factory = (
+      module as {
+        createX402Adapter?: (opts: {
+          wallets: WalletRegistry;
+          networks?: string[];
+          maxTimeoutSeconds?: number;
+        }) => PaymentAdapter;
+      } | undefined
+    )?.createX402Adapter;
+    if (!factory) {
+      throw new Error('Failed to load bundled payment adapter "x402"');
+    }
+
+    const config = adapterConfig.config ?? {};
+    const configuredNetworks = Array.isArray(config.networks)
+      ? config.networks.filter((value): value is string => typeof value === "string")
+      : opts.walletChains;
+    const maxTimeoutSeconds =
+      typeof config.maxTimeoutSeconds === "number"
+        ? config.maxTimeoutSeconds
+        : undefined;
+
+    return factory({
+      wallets: opts.wallets,
+      networks: configuredNetworks,
+      maxTimeoutSeconds,
+    });
   }
 
   throw new Error(
-    `Unsupported payment adapter "${type}". Supported today: free`,
+    `Unsupported payment adapter "${adapterConfig.type}". Supported today: free, x402`,
   );
 };
 
@@ -245,7 +285,12 @@ export const createRuntime = async (
   const jobs = createJobEngine(db, providerId);
   const payments = createPaymentRegistry();
   for (const adapterConfig of config.payments) {
-    payments.register(await loadBundledPaymentAdapter(adapterConfig.type));
+    payments.register(
+      await loadBundledPaymentAdapter(adapterConfig, {
+        wallets,
+        walletChains: config.wallet.chains,
+      }),
+    );
   }
 
   const tools = createToolHandlers({

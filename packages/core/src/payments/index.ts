@@ -9,6 +9,9 @@ export interface PaymentRegistry {
   /** Register an adapter. Later registrations take priority (last-wins on overlap). */
   register(adapter: PaymentAdapter): void;
 
+  /** Look up a registered adapter by ID. */
+  get(id: string): PaymentAdapter | undefined;
+
   /** Find the first adapter that can handle this challenge (checked in reverse-registration order). */
   resolve(challenge: PaymentChallenge): PaymentAdapter | undefined;
 
@@ -22,6 +25,13 @@ export const createPaymentRegistry = (): PaymentRegistry => {
   return {
     register(adapter) {
       adapters.push(adapter);
+    },
+
+    get(id) {
+      for (let i = adapters.length - 1; i >= 0; i--) {
+        if (adapters[i]!.id === id) return adapters[i];
+      }
+      return undefined;
     },
 
     resolve(challenge) {

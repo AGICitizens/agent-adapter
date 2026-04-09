@@ -43,4 +43,16 @@ export interface PaymentAdapter {
 
   /** Verify an inbound payment proof (for reverse proxy mode). */
   verify(proof: string, challenge: PaymentChallenge): Promise<boolean>;
+
+  /**
+   * Optional protocol-specific 402 response builder.
+   * Adapters like x402 can use this to return structured payment requirements
+   * instead of the generic `{ error, pricing, accepts }` shape.
+   */
+  buildPaymentRequired?(
+    challenge: PaymentChallenge,
+  ): Promise<{
+    headers?: Record<string, string>;
+    body: unknown;
+  }>;
 }

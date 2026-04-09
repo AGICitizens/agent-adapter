@@ -140,6 +140,42 @@ describe("CapabilityRegistry", () => {
     expect(registry.getCapability("createPet")).toBeUndefined();
   });
 
+  it("allows pricing updates and enable toggles through the registry", async () => {
+    const registry = createCapabilityRegistry(conn, "reg-2", [
+      {
+        type: "manual",
+        definitions: [
+          {
+            name: "billable-translate",
+            description: "Translate with pricing",
+            method: "POST",
+            url: "https://api.example.com/translate",
+          },
+        ],
+      },
+    ]);
+    await registry.refresh();
+
+    const priced = registry.setPricing("billable-translate", {
+      model: "per_call",
+      amount: 0.02,
+      currency: "USDC",
+    });
+    expect(priced.pricing).toEqual({
+      model: "per_call",
+      amount: 0.02,
+      currency: "USDC",
+    });
+    expect(priced.enabled).toBe(false);
+
+    const enabled = registry.setEnabled("billable-translate", true);
+    expect(enabled.enabled).toBe(true);
+
+    const cleared = registry.setPricing("billable-translate", null);
+    expect(cleared.pricing).toBeNull();
+    expect(cleared.enabled).toBe(false);
+  });
+
   it("inferred source throws not implemented", async () => {
     const registry = createCapabilityRegistry(conn, "reg-2", [
       { type: "inferred" },

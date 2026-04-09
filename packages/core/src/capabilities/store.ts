@@ -9,6 +9,7 @@ export interface CapabilityStore {
   get(name: string): Capability | undefined;
   upsert(cap: Capability): void;
   upsertBatch(caps: Capability[]): void;
+  setPricing(name: string, pricing: PricingConfig | null): void;
   setEnabled(name: string, enabled: boolean): void;
   deleteMany(names: string[]): void;
 }
@@ -186,6 +187,31 @@ export const createCapabilityStore = (
             .run();
         }
       });
+    },
+
+    setPricing(name, pricing) {
+      const existing = this.get(name);
+      if (!existing) return;
+
+      const now = new Date().toISOString();
+      db.update(capabilities)
+        .set({
+          pricingModel: pricing?.model ?? null,
+          pricingAmount: pricing?.amount ?? null,
+          pricingCurrency: pricing?.currency ?? null,
+          pricingItemField: pricing?.itemField ?? null,
+          floor: pricing?.floor ?? null,
+          ceiling: pricing?.ceiling ?? null,
+          enabled: pricing ? existing.enabled : false,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(capabilities.providerId, providerId),
+            eq(capabilities.name, name),
+          ),
+        )
+        .run();
     },
 
     setEnabled(name, enabled) {

@@ -11,7 +11,7 @@ Tasks ordered for incremental development — each builds on what came before.
 - [x] 1.5 — Wallet module: WalletRegistry, wallet-solana plugin, encrypted persistence
 - [x] 1.6 — Capability registry: in-memory registry, OpenAPI parser, manual definition loader
 - [x] 1.7 — Spec change detection: content hash comparison, new/changed/stale flagging
-- [ ] 1.8 — `createRuntime()` factory: wire config → DB → secrets → state → wallet → capabilities
+- [x] 1.8 — `createRuntime()` factory: wire config → DB → secrets → state → wallet → capabilities
 
 ## Phase 2 — Payment Proxy (v0.2)
 
@@ -21,7 +21,7 @@ Tasks ordered for incremental development — each builds on what came before.
 - [x] 2.4 — Tool handlers: capability execution, HTTP client, wallet/secrets/state ops
 - [x] 2.5 — Reverse proxy mode: inbound request handling, pricing enforcement, payment resolution, target forwarding
 - [ ] 2.6 — Management REST API: all `/manage/*` endpoints (Hono)
-- [ ] 2.7 — Capability execution API: `POST /api/v1/capabilities/:name/execute`
+- [x] 2.7 — Capability execution API: `POST /api/v1/capabilities/:name/execute`
 - [ ] 2.8 — payment-x402 plugin: multi-chain 402 parsing (CAIP-2), WalletRegistry signing, retry with proof
 
 ## Phase 3 — Agent Mode (v0.3)

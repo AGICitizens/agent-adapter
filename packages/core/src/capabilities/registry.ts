@@ -1,4 +1,4 @@
-import { Capability, CapabilitySourceConfig } from "@agent-adapter/contracts";
+import { Capability, CapabilitySourceConfig, PricingConfig } from "@agent-adapter/contracts";
 import { readFileSync } from "node:fs";
 import { parseOpenApiSpec } from "./parsers/openapi.js";
 import { parseManualDefinitions } from "./parsers/manual.js";
@@ -19,6 +19,8 @@ export interface CapabilityRegistry {
   refresh(): Promise<SyncResult>;
   getCapability(name: string): Capability | undefined;
   listCapabilities(): Capability[];
+  setPricing(name: string, pricing: PricingConfig | null): Capability;
+  setEnabled(name: string, enabled: boolean): Capability;
 }
 
 const fetchSource = async (
@@ -77,10 +79,14 @@ export const createCapabilityRegistry = (
   const store: CapabilityStore = createCapabilityStore(conn, providerId);
   let cache: Map<string, Capability> = new Map();
 
-  // Load existing capabilities into cache
-  for (const cap of store.list()) {
-    cache.set(cap.name, cap);
-  }
+  const reloadCache = () => {
+    cache = new Map();
+    for (const cap of store.list()) {
+      cache.set(cap.name, cap);
+    }
+  };
+
+  reloadCache();
 
   return {
     async refresh() {
@@ -126,11 +132,7 @@ export const createCapabilityRegistry = (
         store.deleteMany(stale);
       }
 
-      // Reload cache from DB
-      cache = new Map();
-      for (const cap of store.list()) {
-        cache.set(cap.name, cap);
-      }
+      reloadCache();
 
       return { added, updated, unchanged, stale };
     },
@@ -142,6 +144,30 @@ export const createCapabilityRegistry = (
     listCapabilities() {
       if (cache.size > 0) return [...cache.values()];
       return store.list();
+    },
+
+    setPricing(name, pricing) {
+      const existing = store.get(name);
+      if (!existing) {
+        throw new Error(`Capability not found: ${name}`);
+      }
+
+      store.setPricing(name, pricing);
+      reloadCache();
+
+      return cache.get(name)!;
+    },
+
+    setEnabled(name, enabled) {
+      const existing = store.get(name);
+      if (!existing) {
+        throw new Error(`Capability not found: ${name}`);
+      }
+
+      store.setEnabled(name, enabled);
+      reloadCache();
+
+      return cache.get(name)!;
     },
   };
 };

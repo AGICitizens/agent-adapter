@@ -8,6 +8,7 @@ import { createPaymentRegistry } from "../../../core/src/payments/index.js";
 import { createJobEngine } from "../../../core/src/jobs/index.js";
 import { createProxyEngine } from "../../../core/src/proxy/index.js";
 import type { PaymentAdapter } from "@agent-adapter/contracts";
+import type { ToolHandlers } from "@agent-adapter/core/tools";
 
 const PROVIDER_ID = "server-e2e";
 
@@ -16,6 +17,16 @@ let upstream: ReturnType<typeof createHttpServer>;
 let upstreamUrl: string;
 let registry: ReturnType<typeof createCapabilityRegistry>;
 let requestBodies: Uint8Array[] = [];
+
+const noopTools: ToolHandlers = {
+  async execute() {
+    throw new Error("not used in proxy e2e tests");
+  },
+  listTools() {
+    return [];
+  },
+  registerPlugin() {},
+};
 
 const readRawBody = async (req: IncomingMessage): Promise<Uint8Array> => {
   const chunks: Buffer[] = [];
@@ -162,7 +173,12 @@ describe("Proxy sub-path E2E", () => {
     });
 
     const { app } = createServer(
-      { proxyEngine },
+      {
+        provider: { providerId: PROVIDER_ID },
+        capabilities: registry,
+        tools: noopTools,
+        proxyEngine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 
@@ -215,7 +231,12 @@ describe("Proxy sub-path E2E", () => {
     });
 
     const { app } = createServer(
-      { proxyEngine },
+      {
+        provider: { providerId: PROVIDER_ID },
+        capabilities: registry,
+        tools: noopTools,
+        proxyEngine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 

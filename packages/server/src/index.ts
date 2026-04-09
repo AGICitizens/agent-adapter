@@ -7,12 +7,21 @@
 
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
-import type { ServerConfig } from "@agent-adapter/contracts";
+import type { ProviderContext, ServerConfig } from "@agent-adapter/contracts";
+import type { CapabilityRegistry } from "@agent-adapter/core/capabilities";
 import type { ProxyEngine } from "@agent-adapter/core/proxy";
+import type { ToolHandlers } from "@agent-adapter/core/tools";
 import { authMiddleware, type AuthEnv } from "./auth/index.js";
+import {
+  createCapabilityExecutionRoutes,
+  createManagementRoutes,
+} from "./api/index.js";
 import { createProxyRoutes } from "./proxy/index.js";
 
 export interface ServerDeps {
+  readonly provider: ProviderContext;
+  readonly capabilities: CapabilityRegistry;
+  readonly tools: ToolHandlers;
   readonly proxyEngine: ProxyEngine;
 }
 
@@ -35,8 +44,20 @@ export const createServer = (
   // Proxy routes: /proxy/:capabilityName
   app.route("/proxy", createProxyRoutes(deps.proxyEngine));
 
-  // TODO: Management API routes (/manage/*) — task 2.6
-  // TODO: Capability execution API (/api/v1/capabilities/:name/execute) — task 2.7
+  app.route(
+    "/manage",
+    createManagementRoutes({
+      provider: deps.provider,
+      capabilities: deps.capabilities,
+      tools: deps.tools,
+    }),
+  );
+  app.route(
+    "/api/v1",
+    createCapabilityExecutionRoutes({
+      tools: deps.tools,
+    }),
+  );
 
   return {
     app,

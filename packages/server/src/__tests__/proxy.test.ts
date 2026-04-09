@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { createServer } from "../index.js";
 import type { ProxyEngine, ProxyResponse } from "@agent-adapter/core/proxy";
+import type { CapabilityRegistry } from "@agent-adapter/core/capabilities";
+import type { ToolHandlers } from "@agent-adapter/core/tools";
 
 const mockResponse = (overrides: Partial<ProxyResponse> = {}): ProxyResponse => ({
   status: 200,
@@ -17,6 +19,34 @@ const createMockProxyEngine = (
   },
 });
 
+const mockCapabilities: CapabilityRegistry = {
+  async refresh() {
+    return { added: [], updated: [], unchanged: [], stale: [] };
+  },
+  getCapability() {
+    return undefined;
+  },
+  listCapabilities() {
+    return [];
+  },
+  setPricing() {
+    throw new Error("not used in proxy unit tests");
+  },
+  setEnabled() {
+    throw new Error("not used in proxy unit tests");
+  },
+};
+
+const mockTools: ToolHandlers = {
+  async execute() {
+    throw new Error("not used in proxy unit tests");
+  },
+  listTools() {
+    return [];
+  },
+  registerPlugin() {},
+};
+
 describe("Server proxy routes", () => {
   it("GET /proxy/unknown returns 404 from engine", async () => {
     const engine = createMockProxyEngine(() =>
@@ -27,7 +57,12 @@ describe("Server proxy routes", () => {
     );
 
     const { app } = createServer(
-      { proxyEngine: engine },
+      {
+        provider: { providerId: "default" },
+        capabilities: mockCapabilities,
+        tools: mockTools,
+        proxyEngine: engine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 
@@ -44,7 +79,12 @@ describe("Server proxy routes", () => {
     });
 
     const { app } = createServer(
-      { proxyEngine: engine },
+      {
+        provider: { providerId: "default" },
+        capabilities: mockCapabilities,
+        tools: mockTools,
+        proxyEngine: engine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 
@@ -67,7 +107,12 @@ describe("Server proxy routes", () => {
     );
 
     const { app } = createServer(
-      { proxyEngine: engine },
+      {
+        provider: { providerId: "default" },
+        capabilities: mockCapabilities,
+        tools: mockTools,
+        proxyEngine: engine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 
@@ -86,7 +131,12 @@ describe("Server proxy routes", () => {
     );
 
     const { app } = createServer(
-      { proxyEngine: engine },
+      {
+        provider: { providerId: "default" },
+        capabilities: mockCapabilities,
+        tools: mockTools,
+        proxyEngine: engine,
+      },
       { host: "127.0.0.1", port: 0, dashboard: false },
     );
 

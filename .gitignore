@@ -1,0 +1,36 @@
+node_modules/
+dist/
+out/
+build/
+coverage/
+.turbo/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Local data
+data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# TS / build artifacts
+*.tsbuildinfo
+
+# Foundry
+cache/
+broadcast/
+forge-cache/

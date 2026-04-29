@@ -1,0 +1,30 @@
+{
+  "name": "@agent-adapter/payment-x402",
+  "version": "0.1.0",
+  "private": true,
+  "description": "x402 (HTTP 402 Payment Required) adapter — challenge generation, replay-protected nonces, on-chain settlement verification.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@agent-adapter/contracts": "workspace:*",
+    "@agent-adapter/wallet-evm": "workspace:*",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

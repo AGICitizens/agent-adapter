@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { serve, type ServerType } from "@hono/node-server";
-import { pino } from "pino";
+import { pino, type Logger } from "pino";
 import type { Store } from "@agent-adapter/contracts";
 import type { RuntimeConfig } from "./config.js";
 import { createPluginRegistry } from "./plugins/registry.js";
@@ -45,7 +45,7 @@ export async function startRuntime(config: RuntimeConfig): Promise<Runtime> {
   };
 }
 
-async function shutdown(server: ServerType, handle: DatabaseHandle, log: pino.Logger): Promise<void> {
+async function shutdown(server: ServerType, handle: DatabaseHandle, log: Logger): Promise<void> {
   await new Promise<void>((res) => server.close(() => res()));
   handle.close();
   log.info("shutdown complete");

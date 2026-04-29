@@ -1,0 +1,40 @@
+{
+  "name": "@agent-adapter/runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hono-based runtime for the Agent Adapter — reverse-proxy + capability discovery + plugin orchestration.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "agent-adapter": "./dist/cli.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/cli.ts run"
+  },
+  "dependencies": {
+    "@agent-adapter/contracts": "workspace:*",
+    "@hono/node-server": "^1.13.0",
+    "better-sqlite3": "^11.5.0",
+    "drizzle-orm": "^0.36.0",
+    "hono": "^4.6.0",
+    "pino": "^9.5.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

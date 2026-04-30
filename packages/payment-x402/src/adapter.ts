@@ -23,11 +23,9 @@ export interface X402AdapterConfig {
 
 /**
  * Server-side x402 adapter. Issues 402 challenges, verifies on-chain
- * settlement, and returns a receipt that callers can trust.
- *
- * Replay protection lives in `consumedNonces` — production deployments would
- * persist this through the runtime store; in commit 4 it's in-memory until
- * the SQLite-backed store implementation lands.
+ * settlement, and returns a receipt that callers can trust. Replay
+ * protection is held in `consumedNonces`; production deployments should
+ * persist this through the runtime store rather than rely on process memory.
  */
 export class X402Adapter implements PaymentAdapter {
   readonly rail = "x402" as const;

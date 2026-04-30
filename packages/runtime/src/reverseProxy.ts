@@ -3,11 +3,9 @@ import type { Capability, PaymentAdapter, PaymentRail } from "@agent-adapter/con
 import type { ServerContext } from "./server.js";
 
 /**
- * Mount payment-gated routes for each enabled capability.
- *
- * On a request without `X-PAYMENT`, we return a 402 with a fresh challenge.
- * The challenge → verify → forward → respond loop is wired in commit 4 once
- * the wallet and x402 adapter plugins land.
+ * Mount payment-gated routes for each enabled capability. A request without
+ * `X-PAYMENT` receives a 402 with a fresh challenge; a request with a valid
+ * payment proof is forwarded to the upstream API.
  */
 export function mountReverseProxy(
   app: Hono,
@@ -25,8 +23,8 @@ export function mountReverseProxy(
         const challenge = await adapter.challenge({ quote, capabilityId: cap.id });
         return c.json(challenge, 402);
       }
-      // TODO(commit 4): parse the X-PAYMENT header, verify with the adapter,
-      // forward the request to the upstream API, return the response.
+      // TODO: parse the X-PAYMENT header, verify with the adapter, forward
+      // the request to the upstream API, and return the response.
       return c.json({ error: "payment_verification_not_implemented" }, 501);
     });
   }

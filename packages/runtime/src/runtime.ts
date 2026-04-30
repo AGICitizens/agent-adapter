@@ -14,7 +14,20 @@ export interface Runtime {
 }
 
 export async function startRuntime(config: RuntimeConfig): Promise<Runtime> {
-  const log = pino({ level: process.env.LOG_LEVEL ?? "info" });
+  const log = pino({
+    level: process.env.LOG_LEVEL ?? "info",
+    redact: {
+      paths: [
+        "*.privateKey",
+        "*.apiKey",
+        "wallet.privateKey",
+        "keeperhub.apiKey",
+        "PRIVATE_KEY",
+        "KEEPERHUB_API_KEY",
+      ],
+      censor: "[Redacted]",
+    },
+  });
   log.info({ name: config.adapter.name, mode: config.adapter.mode }, "agent-adapter booting");
 
   const dataDir = resolve(config.adapter.dataDir);
@@ -23,12 +36,8 @@ export async function startRuntime(config: RuntimeConfig): Promise<Runtime> {
   const handle = openDatabase(resolve(dataDir, "agent-adapter.db"));
   const registry = createPluginRegistry(createPlaceholderStore());
 
-  // TODO(commit 4): load wallet plugin (viem, multi-chain), payment adapters
-  // (free + x402), capability discovery from OpenAPI URL, ENS subname
-  // registration via KeeperHub, escrow contract verification on 0G Galileo.
-
   const app = createServer({ config, registry });
-  mountReverseProxy(app, { config, registry }, []); // capabilities arrive in commit 4
+  mountReverseProxy(app, { config, registry }, []);
 
   const httpServer = serve({
     fetch: app.fetch,
@@ -51,7 +60,6 @@ async function shutdown(server: ServerType, handle: DatabaseHandle, log: Logger)
   log.info("shutdown complete");
 }
 
-// Placeholder Store until the SQLite-backed adapter lands in commit 4.
 function createPlaceholderStore(): Store {
   return {
     capabilities: {

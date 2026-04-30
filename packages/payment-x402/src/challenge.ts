@@ -25,7 +25,8 @@ export interface IssuedChallenge {
 /** Generate a fresh challenge with a cryptographic nonce + expiration. */
 export function issueChallenge(input: ChallengeInput): IssuedChallenge {
   const ttl = (input.ttlSeconds ?? 300) * 1000;
-  const nonce = `0x${randomBytes(16).toString("hex")}` as Hex;
+  // 32 bytes — matches the `bytes32` parameter on AgentAdapterEscrow.pay
+  const nonce = `0x${randomBytes(32).toString("hex")}` as Hex;
   return {
     rail: "x402",
     capabilityId: input.capabilityId,

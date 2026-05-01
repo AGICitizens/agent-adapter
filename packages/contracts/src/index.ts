@@ -5,3 +5,4 @@ export * from "./payment.js";
 export * from "./store.js";
 export * from "./extension.js";
 export * from "./events.js";
+export * from "./identity.js";

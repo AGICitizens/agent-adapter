@@ -19,6 +19,13 @@ export interface X402AdapterConfig {
   priceLookup: (capabilityId: string) => { amount: bigint; asset: AssetRef };
   /** Optional TTL override in seconds; defaults to 300. */
   challengeTtlSeconds?: number;
+  /**
+   * Address of the deployed `AgentAdapterEscrow` contract on the same chain as `wallet`.
+   * When set, the adapter switches to event-based verification: a payment is valid iff
+   * the receipt logs include a matching `Paid(nonce, payer, payee, amount)` emitted by
+   * this contract. Without it, the adapter falls back to plain `to == payTo` matching.
+   */
+  escrowAddress?: EvmAddress;
 }
 
 /**
@@ -55,6 +62,7 @@ export class X402Adapter implements PaymentAdapter {
       chainId: args.quote.chainId,
       payTo: this.config.payTo,
       ttlSeconds: this.config.challengeTtlSeconds,
+      escrowAddress: this.config.escrowAddress,
     });
     return issued;
   }
@@ -103,6 +111,10 @@ export class X402Adapter implements PaymentAdapter {
     const receipt = await reader.getTransactionReceipt({ hash: txHash }).catch(() => null);
     if (!receipt || receipt.status !== "success") return null;
 
+    if (this.config.escrowAddress) {
+      return this.verifyEscrowEvent(receipt, challenge);
+    }
+
     const tx = await reader.getTransaction({ hash: txHash }).catch(() => null);
     if (!tx) return null;
 
@@ -112,14 +124,11 @@ export class X402Adapter implements PaymentAdapter {
       return { payer: tx.from as EvmAddress, amount: tx.value };
     }
 
-    // ERC-20 path: confirm the tx was a `transfer(payTo, >=amount)` to the asset contract.
     if (!tx.to || tx.to.toLowerCase() !== challenge.asset.toLowerCase()) return null;
 
     const iface = erc20Abi.find((entry) => entry.type === "function" && entry.name === "transfer");
     if (!iface) return null;
 
-    // viem doesn't expose a fast `decodeFunctionData` here without a circular import;
-    // we decode by checking the standard 4-byte selector + topic layout via the receipt logs.
     const transferLog = receipt.logs.find(
       (log: Log) =>
         log.address.toLowerCase() === challenge.asset.toLowerCase() &&
@@ -137,7 +146,40 @@ export class X402Adapter implements PaymentAdapter {
     const sender = ("0x" + (transferLog.topics[1] ?? "").slice(26)) as EvmAddress;
     return { payer: sender, amount: transferred };
   }
+
+  private verifyEscrowEvent(
+    receipt: { logs: readonly Log[] },
+    challenge: IssuedChallenge,
+  ): { payer: EvmAddress; amount: bigint } | null {
+    const escrow = this.config.escrowAddress;
+    if (!escrow) return null;
+
+    const paidLog = receipt.logs.find(
+      (log) =>
+        log.address.toLowerCase() === escrow.toLowerCase() &&
+        log.topics[0] === PAID_TOPIC &&
+        (log.topics[1] ?? "").toLowerCase() === challenge.nonce.toLowerCase(),
+    );
+    if (!paidLog) return null;
+
+    const payerTopic = paidLog.topics[2] ?? "";
+    const payeeTopic = paidLog.topics[3] ?? "";
+    if (!payerTopic || !payeeTopic) return null;
+
+    const payer = ("0x" + payerTopic.slice(26)) as EvmAddress;
+    const payee = ("0x" + payeeTopic.slice(26)).toLowerCase();
+    if (payee !== challenge.payTo.toLowerCase()) return null;
+
+    const amount = BigInt(paidLog.data);
+    if (amount < challenge.amount) return null;
+
+    return { payer, amount };
+  }
 }
 
 const TRANSFER_TOPIC =
   "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" as `0x${string}`;
+
+/** keccak256("Paid(bytes32,address,address,uint256)") — emitted by AgentAdapterEscrow.pay. */
+const PAID_TOPIC =
+  "0x37db9851b6c9a32f8ddcf4734e6526de7c85268ef735f7883ea70dc8a39c9c85" as `0x${string}`;

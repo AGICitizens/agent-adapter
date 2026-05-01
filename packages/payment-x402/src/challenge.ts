@@ -9,6 +9,8 @@ export interface ChallengeInput {
   payTo: EvmAddress;
   /** Time-to-live in seconds; defaults to 300 (5 min). */
   ttlSeconds?: number;
+  /** Optional escrow contract the buyer must call instead of transferring directly. */
+  escrowAddress?: EvmAddress;
 }
 
 export interface IssuedChallenge {
@@ -20,6 +22,7 @@ export interface IssuedChallenge {
   payTo: EvmAddress;
   expiresAt: number;
   nonce: Hex;
+  escrowAddress?: EvmAddress;
 }
 
 /** Generate a fresh challenge with a cryptographic nonce + expiration. */
@@ -36,6 +39,7 @@ export function issueChallenge(input: ChallengeInput): IssuedChallenge {
     payTo: input.payTo,
     expiresAt: Date.now() + ttl,
     nonce,
+    ...(input.escrowAddress ? { escrowAddress: input.escrowAddress } : {}),
   };
 }
 

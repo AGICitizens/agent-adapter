@@ -19,6 +19,12 @@ export interface PaymentChallenge {
   payTo: EvmAddress;
   expiresAt: number;
   nonce: Hex;
+  /**
+   * For x402 over an escrow contract: address the buyer must call. The buyer invokes
+   * `escrowAddress.pay(nonce, payTo){value}` rather than transferring directly to `payTo`.
+   * Absent for plain transfer flows.
+   */
+  escrowAddress?: EvmAddress;
   metadata?: Record<string, unknown>;
 }
 

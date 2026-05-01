@@ -62,7 +62,7 @@ const RuntimeConfigSchema = z.object({
   keeperhub: z
     .object({
       apiKey: z.string().optional(),
-      baseUrl: z.string().url().default("https://api.keeperhub.com"),
+      baseUrl: z.string().url().default("https://app.keeperhub.com/api"),
     })
     .optional(),
   http: z

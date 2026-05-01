@@ -24,7 +24,5 @@ export function createServer(ctx: ServerContext): Hono {
   );
 
   // Reverse-proxy capability routes are mounted via mountReverseProxy().
-  // Management API and dashboard mount points land in later commits.
-
   return app;
 }

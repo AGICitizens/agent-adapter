@@ -37,7 +37,15 @@ export async function startRuntime(config: RuntimeConfig): Promise<Runtime> {
   const registry = createPluginRegistry(createPlaceholderStore());
 
   const app = createServer({ config, registry });
-  mountReverseProxy(app, { config, registry }, []);
+  mountReverseProxy(
+    app,
+    { config, registry },
+    [],
+    {
+      upstreamFor: () => null,
+      challengeStore: new Map(),
+    },
+  );
 
   const httpServer = serve({
     fetch: app.fetch,

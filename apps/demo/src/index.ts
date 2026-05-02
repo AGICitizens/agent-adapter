@@ -7,6 +7,11 @@ import { createPublicClient, formatEther, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { createEnsIdentityResolver } from "@agent-adapter/ens-identity";
 import {
+  KeeperHubClient,
+  KeeperHubError,
+  KeeperHubIdentityPublisher,
+} from "@agent-adapter/keeperhub";
+import {
   banner,
   blank,
   bullet,
@@ -77,6 +82,9 @@ async function main(): Promise<void> {
   step(++n, `Verifying escrow on 0G Galileo (chain ${cfg.paymentChainId})`);
   detail("contract", cfg.escrowAddress);
   detail("explorer", `https://chainscan-galileo.0g.ai/address/${cfg.escrowAddress}`);
+
+  step(++n, "Triggering KeeperHub workflow to publish identity on Sepolia");
+  await triggerKeeperHubPublish(cfg);
 
   step(++n, "Resolving provider identity via ENS on Sepolia");
   const identity = await resolveIdentity(cfg);
@@ -207,6 +215,49 @@ async function reportWalletBalance(
     detail(`${label} balance`, `${formatEther(balance)} 0G`);
   } catch (err) {
     warn(`balance check failed: ${describeError(err)}`);
+  }
+}
+
+async function triggerKeeperHubPublish(cfg: DemoConfig): Promise<void> {
+  const apiKey = process.env.KEEPERHUB_API_KEY;
+  const slug = process.env.KEEPERHUB_IDENTITY_WORKFLOW_SLUG;
+  const baseUrl = process.env.KEEPERHUB_BASE_URL ?? "https://app.keeperhub.com/api";
+
+  if (!apiKey || !slug) {
+    note("KEEPERHUB_API_KEY or KEEPERHUB_IDENTITY_WORKFLOW_SLUG not set — skipping.");
+    note("(Demo continues using the pre-published ENS records.)");
+    return;
+  }
+
+  const sellerAccount = privateKeyToAccount(cfg.sellerKey);
+  const manifest = {
+    walletAddress: sellerAccount.address,
+    endpoint: `http://127.0.0.1:8080`,
+    capabilities: ["forecast"],
+    pricing: { forecast: { amount: "1000000000000000", asset: "native" as const } },
+    paymentChainId: cfg.paymentChainId,
+    escrowAddress: cfg.escrowAddress,
+  };
+
+  try {
+    const client = new KeeperHubClient({ apiKey, baseUrl });
+    const publisher = new KeeperHubIdentityPublisher({ client, workflowSlug: slug });
+    const result = await publisher.publish({
+      subname: cfg.subname,
+      ownerAddress: sellerAccount.address,
+      manifest,
+    });
+    detail("workflow", slug);
+    detail("executionId", result.executionId);
+    detail("status", `${result.status} (async on KeeperHub)`);
+    note("KeeperHub uses its managed Sepolia wallet to write the ENS records.");
+  } catch (err) {
+    if (err instanceof KeeperHubError) {
+      warn(`KeeperHub returned ${err.status ?? "?"}: ${err.message}`);
+    } else {
+      warn(`KeeperHub trigger failed: ${describeError(err)}`);
+    }
+    note("Demo continues using the pre-published ENS records.");
   }
 }
 

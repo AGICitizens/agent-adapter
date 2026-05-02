@@ -57,6 +57,9 @@ importers:
       '@agent-adapter/ens-identity':
         specifier: workspace:*
         version: link:../../packages/ens-identity
+      '@agent-adapter/keeperhub':
+        specifier: workspace:*
+        version: link:../../packages/keeperhub
       '@agent-adapter/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime

@@ -1,4 +1,11 @@
-import { createPublicClient, defineChain, http, type PublicClient } from "viem";
+import {
+  createPublicClient,
+  defineChain,
+  http,
+  type Chain,
+  type PublicClient,
+} from "viem";
+import { mainnet, sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 import type {
   AdapterIdentity,
@@ -40,13 +47,10 @@ export class EnsIdentityResolver implements IdentityResolver {
   private readonly defaultPaymentChainId: ChainId;
 
   constructor(config: EnsIdentityResolverConfig) {
-    const chain = defineChain({
-      id: config.chainId,
-      name: `chain-${config.chainId}`,
-      nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" },
-      rpcUrls: { default: { http: [config.rpcUrl] } },
+    this.client = createPublicClient({
+      chain: pickEnsChain(config.chainId, config.rpcUrl),
+      transport: http(config.rpcUrl),
     });
-    this.client = createPublicClient({ chain, transport: http(config.rpcUrl) });
     this.defaultPaymentChainId = config.defaultPaymentChainId;
   }
 
@@ -169,4 +173,20 @@ function parseChainId(raw: string | null): ChainId | null {
   if (!raw) return null;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * viem's built-in `sepolia` and `mainnet` chain configs include the ENS
+ * Universal Resolver address. `defineChain` does not — `getEnsText` against a
+ * custom chain silently fails. Prefer the preset for known ENS chains.
+ */
+function pickEnsChain(chainId: ChainId, rpcUrl: string): Chain {
+  if (chainId === sepolia.id) return sepolia;
+  if (chainId === mainnet.id) return mainnet;
+  return defineChain({
+    id: chainId,
+    name: `chain-${chainId}`,
+    nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" },
+    rpcUrls: { default: { http: [rpcUrl] } },
+  });
 }

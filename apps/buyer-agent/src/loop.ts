@@ -36,11 +36,18 @@ You are a buyer agent for the Agent Adapter framework. Your job is to satisfy a 
 
 Default provider: ${defaultSubname}. Use it unless the goal names a different ENS subname.
 
+Capability hints (the framework forwards your query params to the upstream API):
+- 'forecast' (weather adapter, backed by open-meteo): REQUIRED query params:
+    latitude  (number, WGS84) — Tokyo: 35.6762, San Francisco: 37.7749, London: 51.5074, New York: 40.7128
+    longitude (number, WGS84) — Tokyo: 139.6503, San Francisco: -122.4194, London: -0.1278, New York: -74.0060
+    current=temperature_2m  (string, selects the variables returned)
+  Response is JSON. Read 'current.temperature_2m' for the temperature in degrees Celsius.
+
 Rules:
 - Always call resolve_provider before request_capability.
 - Call report_result exactly once when you have the answer or determine the goal is impossible.
 - Prefer the simplest capability call that satisfies the goal.
-- If a tool returns an error, do not retry the same call without changing the inputs.
+- If a tool returns an empty body or error, inspect it and try corrected inputs once before giving up.
 `.trim();
 
 export async function runLoop(input: RunLoopInput): Promise<RunLoopResult> {

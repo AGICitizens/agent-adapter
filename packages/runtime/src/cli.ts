@@ -64,9 +64,20 @@ const DEFAULT_YAML = `adapter:
 
 capabilities:
   source:
-    type: openapi
-    url: ""
-  pricing: {}
+    type: manual
+    baseUrl: https://api.open-meteo.com
+    definitions:
+      - id: forecast
+        name: Weather Forecast
+        description: Current temperature for a given lat/lon.
+        upstream:
+          path: /v1/forecast
+          method: GET
+  pricing:
+    forecast:
+      rail: x402
+      amount: 1000000000000000
+      asset: native
 
 wallet:
   type: viem
@@ -81,7 +92,18 @@ chains:
     rpcUrl: \${SEPOLIA_RPC_URL}
 
 payments:
-  - type: free
+  - type: x402
+    chainId: 16602
+    escrowAddress: \${ZG_ESCROW_ADDRESS}
+
+ens:
+  parent: \${ENS_PARENT_NAME}
+  subname: weather
+
+keeperhub:
+  apiKey: \${KEEPERHUB_API_KEY}
+  baseUrl: https://app.keeperhub.com/api
+  identityWorkflowSlug: agent-adapter-publish-identity
 
 http:
   host: 127.0.0.1
@@ -90,8 +112,11 @@ http:
 
 const DEFAULT_ENV = `PRIVATE_KEY=
 ZG_RPC_URL=https://evmrpc-testnet.0g.ai
-SEPOLIA_RPC_URL=
+ZG_ESCROW_ADDRESS=
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+ENS_PARENT_NAME=
 KEEPERHUB_API_KEY=
+KEEPERHUB_BASE_URL=https://app.keeperhub.com/api
 `;
 
 main().catch((err) => {

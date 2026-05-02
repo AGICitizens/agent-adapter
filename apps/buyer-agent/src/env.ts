@@ -9,9 +9,6 @@ const EnvSchema = z.object({
   LLM_MODEL: z.string().default("google/gemini-2.0-flash-001"),
 
   ZG_RPC_URL: z.string().url("ZG_RPC_URL must be a URL"),
-  ZG_ESCROW_ADDRESS: z
-    .string()
-    .regex(HEX_ADDRESS, "ZG_ESCROW_ADDRESS must be a 0x-prefixed 20-byte address"),
 
   SEPOLIA_RPC_URL: z.string().url("SEPOLIA_RPC_URL must be a URL"),
 

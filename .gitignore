@@ -10,6 +10,10 @@ coverage/
 .env.*
 !.env.example
 
+# Local agent-adapter config (may hardcode values during dev); only the example is tracked
+agent-adapter.yaml
+!agent-adapter.example.yaml
+
 # Local data
 data/
 *.db

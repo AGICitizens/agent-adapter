@@ -1,0 +1,59 @@
+# Reference Agent Adapter config for the demo.
+# Copy to `agent-adapter.yaml` and fill in environment variables in `.env`.
+
+adapter:
+  name: weatheradapter
+  dataDir: ./data
+  mode: reverse-proxy
+
+# Capabilities the adapter exposes. Buyer agents discover these via ENS;
+# the runtime forwards paid requests to the upstream API.
+capabilities:
+  source:
+    type: manual
+    baseUrl: https://api.open-meteo.com
+    definitions:
+      - id: forecast
+        name: Weather Forecast
+        description: Current temperature for a given lat/lon.
+        upstream:
+          path: /v1/forecast
+          method: GET
+
+  pricing:
+    forecast:
+      rail: x402
+      amount: 1000000000000000  # 0.001 0G in wei
+      asset: native
+
+# Wallet that signs payment-verification reads and (in future) on-chain ops.
+# Same key on both chains since they're EVM-compatible.
+wallet:
+  type: viem
+  privateKey: ${PRIVATE_KEY}
+
+chains:
+  payment:
+    id: 16602
+    rpcUrl: ${ZG_RPC_URL}
+  identity:
+    id: 11155111
+    rpcUrl: ${SEPOLIA_RPC_URL}
+
+payments:
+  - type: x402
+    chainId: 16602
+    escrowAddress: ${ZG_ESCROW_ADDRESS}
+
+ens:
+  parent: ${ENS_PARENT_NAME}
+  subname: weather
+
+keeperhub:
+  apiKey: ${KEEPERHUB_API_KEY}
+  baseUrl: https://app.keeperhub.com/api
+  identityWorkflowSlug: agent-adapter-publish-identity
+
+http:
+  host: 127.0.0.1
+  port: 8080

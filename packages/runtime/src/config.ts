@@ -11,6 +11,7 @@ const ChainConfigSchema = z.object({
 });
 
 const PricingSchema = z.object({
+  rail: z.union([z.literal("x402"), z.literal("free")]).default("x402"),
   amount: z.number().nonnegative(),
   asset: z.union([z.literal("native"), EvmAddress]).default("native"),
   enabled: z.boolean().default(true),
@@ -25,13 +26,28 @@ const PaymentAdapterConfigSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+const ManualCapabilityDefSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  upstream: z.object({
+    path: z.string().min(1),
+    method: z.enum(["GET", "POST"]).default("GET"),
+    baseUrl: z.string().url().optional(),
+  }),
+});
+
 const CapabilitySourceSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("openapi"),
     url: z.string(),
     baseUrl: z.string().url().optional(),
   }),
-  z.object({ type: z.literal("manual"), definitions: z.array(z.unknown()) }),
+  z.object({
+    type: z.literal("manual"),
+    baseUrl: z.string().url().optional(),
+    definitions: z.array(ManualCapabilityDefSchema),
+  }),
 ]);
 
 const RuntimeConfigSchema = z.object({
@@ -63,6 +79,7 @@ const RuntimeConfigSchema = z.object({
     .object({
       apiKey: z.string().optional(),
       baseUrl: z.string().url().default("https://app.keeperhub.com/api"),
+      identityWorkflowSlug: z.string().optional(),
     })
     .optional(),
   http: z
@@ -74,6 +91,8 @@ const RuntimeConfigSchema = z.object({
 });
 
 export type RuntimeConfig = z.infer<typeof RuntimeConfigSchema>;
+export type ManualCapabilityDef = z.infer<typeof ManualCapabilityDefSchema>;
+export type CapabilityPricingConfig = z.infer<typeof PricingSchema>;
 
 function resolveEnvVars(value: unknown): unknown {
   if (typeof value === "string") {

@@ -1,0 +1,33 @@
+{
+  "name": "@agent-adapter/demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Terminal demo orchestrator — boots the seller runtime + buyer agent and renders the round-by-round flow.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "agent-adapter-demo": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -p tsconfig.json --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@agent-adapter/contracts": "workspace:*",
+    "@agent-adapter/ens-identity": "workspace:*",
+    "@agent-adapter/runtime": "workspace:*",
+    "boxen": "^8.0.0",
+    "chalk": "^5.3.0",
+    "viem": "^2.21.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

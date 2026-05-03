@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Adapter Future UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="grain"></div>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <p class="eyebrow">Agent Adapter</p>
+            <h1>Control Plane</h1>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-panel="overview">
+            <span>01</span>
+            <div>
+              <strong>Overview</strong>
+              <small>Runtime pulse</small>
+            </div>
+          </button>
+          <button class="nav-item" data-panel="identity">
+            <span>02</span>
+            <div>
+              <strong>Identity</strong>
+              <small>ENS and discovery</small>
+            </div>
+          </button>
+          <button class="nav-item" data-panel="pricing">
+            <span>03</span>
+            <div>
+              <strong>Pricing</strong>
+              <small>Curate what you sell</small>
+            </div>
+          </button>
+          <button class="nav-item" data-panel="payments">
+            <span>04</span>
+            <div>
+              <strong>Payments</strong>
+              <small>0G and x402</small>
+            </div>
+          </button>
+          <button class="nav-item" data-panel="activity">
+            <span>05</span>
+            <div>
+              <strong>Activity</strong>
+              <small>Agent and jobs</small>
+            </div>
+          </button>
+          <button class="nav-item" data-panel="roadmap">
+            <span>06</span>
+            <div>
+              <strong>Roadmap</strong>
+              <small>Next milestone</small>
+            </div>
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <p class="eyebrow">Note</p>
+          <p>
+            Local preview of the provider control plane. Live demo runs in the
+            terminal.
+          </p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Provider Dashboard</p>
+          </div>
+          <div class="hero-badge">Local preview</div>
+        </header>
+
+        <section class="panel active" id="overview">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h3>The runtime at a glance</h3>
+            </div>
+            <div class="status-pill">
+              <span class="dot"></span>
+              Ready for demo
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <article class="stat-card accent">
+              <span>Provider</span>
+              <strong>weather.agentadapter.eth</strong>
+              <p>ENS name for this provider.</p>
+            </article>
+            <article class="stat-card">
+              <span>Payment</span>
+              <strong>x402 on 0G escrow</strong>
+              <p>Pay on-chain to call the API.</p>
+            </article>
+            <article class="stat-card">
+              <span>Price</span>
+              <strong>0.001 0G / call</strong>
+              <p>Per request.</p>
+            </article>
+            <article class="stat-card">
+              <span>Provisioning</span>
+              <strong>KeeperHub</strong>
+              <p>Workflow trigger for ENS setup.</p>
+            </article>
+          </div>
+
+        </section>
+
+        <section class="panel" id="identity">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Identity</p>
+              <h3>Discovery via ENS</h3>
+            </div>
+          </div>
+
+          <div class="identity-layout">
+            <article class="identity-card primary">
+              <span class="identity-label">Active subname</span>
+              <h4>weather.agentadapter.eth</h4>
+              <p>
+                One canonical provider identity with endpoint, capability
+                manifest, pricing, payment chain, and escrow address.
+              </p>
+              <div class="chip-row">
+                <span class="chip">Sepolia</span>
+                <span class="chip">ENS manifest</span>
+                <span class="chip">Resolver healthy</span>
+              </div>
+            </article>
+
+            <article class="identity-card">
+              <span class="identity-label">Manifest fields</span>
+              <pre>{
+  "endpoint": "http://127.0.0.1:8080",
+  "capabilities": ["forecast"],
+  "paymentChainId": 16602,
+  "escrowAddress": "0xc5b8...2214"
+}</pre>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="pricing">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Pricing</p>
+              <h3>Set prices and toggle services</h3>
+            </div>
+          </div>
+
+          <div class="save-status" id="save-status">
+            Edits are saved locally in this preview.
+          </div>
+
+          <div class="pricing-list">
+            <article class="pricing-card config-card" data-capability="forecast">
+              <div class="config-copy">
+                <span class="eyebrow">Capability</span>
+                <h4>forecast</h4>
+                <p>Current temperature for a given lat/lon via Open-Meteo.</p>
+              </div>
+              <div class="config-controls">
+                <label>
+                  <span>Price</span>
+                  <div class="input-shell">
+                    <input type="text" value="0.001 0G" data-price-input />
+                  </div>
+                </label>
+                <label>
+                  <span>Status</span>
+                  <div class="toggle enabled" data-toggle>
+                    <div class="knob"></div>
+                    <strong data-toggle-label>Enabled</strong>
+                  </div>
+                </label>
+                <div class="action-row">
+                  <button data-save-button>Save pricing</button>
+                  <button class="ghost" data-toggle-button>Disable</button>
+                </div>
+              </div>
+            </article>
+            <article class="pricing-card config-card muted" data-capability="alerts">
+              <div class="config-copy">
+                <span class="eyebrow">Capability</span>
+                <h4>alerts</h4>
+                <p>Threshold-triggered summaries and proactive notifications.</p>
+              </div>
+              <div class="config-controls">
+                <label>
+                  <span>Price</span>
+                  <div class="input-shell">
+                    <input type="text" value="0.0005 0G" data-price-input />
+                  </div>
+                </label>
+                <label>
+                  <span>Status</span>
+                  <div class="toggle disabled" data-toggle>
+                    <div class="knob"></div>
+                    <strong data-toggle-label>Disabled</strong>
+                  </div>
+                </label>
+                <div class="action-row">
+                  <button data-save-button>Save pricing</button>
+                  <button class="ghost" data-toggle-button>Enable</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="payments">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Payments</p>
+              <h3>How a payment flows</h3>
+            </div>
+          </div>
+
+          <div class="timeline">
+            <article>
+              <span>1</span>
+              <div>
+                <h4>Challenge issued</h4>
+                <p>Runtime responds with `402` and a signed payment challenge.</p>
+              </div>
+            </article>
+            <article>
+              <span>2</span>
+              <div>
+                <h4>Agent pays on 0G</h4>
+                <p>Agent submits `escrow.pay(nonce, payee)` with native value.</p>
+              </div>
+            </article>
+            <article>
+              <span>3</span>
+              <div>
+                <h4>Receipt verified</h4>
+                <p>Runtime confirms `Paid` event before releasing the response.</p>
+              </div>
+            </article>
+            <article>
+              <span>4</span>
+              <div>
+                <h4>Revenue visible</h4>
+                <p>Future UI would expose tx history, throughput, and health.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="activity">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Activity</p>
+              <h3>Recent requests</h3>
+            </div>
+          </div>
+
+          <div class="log-board">
+            <article class="log-card">
+              <span>12:03:08</span>
+              <strong>ENS resolve succeeded</strong>
+              <p>Fetched manifest for `weather.agentadapter.eth` on Sepolia.</p>
+            </article>
+            <article class="log-card">
+              <span>12:03:11</span>
+              <strong>x402 payment verified</strong>
+              <p>Matched `Paid` event on 0G Galileo and released capability output.</p>
+            </article>
+            <article class="log-card">
+              <span>12:03:13</span>
+              <strong>Forecast response returned</strong>
+              <p>Agent received the paid response for Tokyo weather.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="roadmap">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Roadmap</p>
+              <h3>What's next</h3>
+            </div>
+          </div>
+
+          <div class="roadmap-grid">
+            <article class="roadmap-card">
+              <span>Phase A</span>
+              <h4>Onboard providers visually</h4>
+              <p>Wallet connect, API import, pricing setup, and ENS publish in one flow.</p>
+            </article>
+            <article class="roadmap-card">
+              <span>Phase B</span>
+              <h4>Monitor paid traffic</h4>
+              <p>Show tx history, challenge failures, latency, and capability earnings.</p>
+            </article>
+            <article class="roadmap-card">
+              <span>Phase C</span>
+              <h4>Make monetization self-serve</h4>
+              <p>Let non-technical teams turn a plain API into an agent endpoint.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

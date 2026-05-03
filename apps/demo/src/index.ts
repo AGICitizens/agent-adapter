@@ -73,11 +73,11 @@ async function main(): Promise<void> {
   detail("yaml", cfg.yamlPath);
   detail("adapter", `${yaml.adapter.name} (${yaml.adapter.mode})`);
 
-  step(++n, "Checking buyer wallet on 0G Galileo");
-  await reportWalletBalance(cfg.zgRpcUrl, cfg.paymentChainId, cfg.buyerKey, "Buyer");
+  step(++n, "Checking agent wallet on 0G Galileo");
+  await reportWalletBalance(cfg.zgRpcUrl, cfg.paymentChainId, cfg.buyerKey, "Agent");
 
-  step(++n, "Checking seller wallet on 0G Galileo");
-  await reportWalletBalance(cfg.zgRpcUrl, cfg.paymentChainId, cfg.sellerKey, "Seller");
+  step(++n, "Checking provider wallet on 0G Galileo");
+  await reportWalletBalance(cfg.zgRpcUrl, cfg.paymentChainId, cfg.sellerKey, "Provider");
 
   step(++n, `Verifying escrow on 0G Galileo (chain ${cfg.paymentChainId})`);
   detail("contract", cfg.escrowAddress);
@@ -105,15 +105,15 @@ async function main(): Promise<void> {
   step(++n, "Booting reverse-proxy server");
   const seller = await bootSeller(cfg);
   detail("listening", `http://${yaml.http.host}:${yaml.http.port}`);
-  success("seller ready");
+  success("provider ready");
 
-  // ── Phase 2: Buyer Goal ───────────────────────────────────────────────────
-  sectionRule("Buyer Agent Goal");
+  // ── Phase 2: Agent Goal ───────────────────────────────────────────────────
+  sectionRule("AI Agent Goal");
   bullet(cfg.goal);
   blank();
 
-  // ── Phase 3: Buyer Loop ───────────────────────────────────────────────────
-  sectionRule("Buyer Agent — LLM-Driven (Real Tools, Real Tx)");
+  // ── Phase 3: Agent Loop ───────────────────────────────────────────────────
+  sectionRule("AI Agent — LLM-Driven");
   const stats = await runBuyer(cfg);
 
   // ── Phase 4: Results ──────────────────────────────────────────────────────
@@ -184,10 +184,8 @@ function printConfigBlock(cfg: DemoConfig, yaml: ParsedYaml): void {
   const lines = [
     `Payment:   x402 on-chain native (0G Galileo, chain ${cfg.paymentChainId})`,
     `Escrow:    ${cfg.escrowAddress}`,
-    `LLM:       ${cfg.llmModel} via OpenRouter`,
     `Provider:  ${yaml.adapter.name} — ${yaml.capabilities.source.baseUrl ?? "<no baseUrl>"} behind x402 paywall`,
     `Discovery: ENS subnames on Sepolia (chain ${cfg.identityChainId})`,
-    `Everything is real — no mocks.`,
   ];
   blank();
   for (const line of lines) plain(`        ${line}`);
@@ -250,7 +248,7 @@ async function triggerKeeperHubPublish(cfg: DemoConfig): Promise<void> {
     detail("workflow", slug);
     detail("executionId", result.executionId);
     detail("status", `${result.status} (async on KeeperHub)`);
-    note("KeeperHub uses its managed Sepolia wallet to write the ENS records.");
+    note("KeeperHub workflow triggered. Full ENS publish flow is next.");
   } catch (err) {
     if (err instanceof KeeperHubError) {
       warn(`KeeperHub returned ${err.status ?? "?"}: ${err.message}`);
@@ -294,10 +292,10 @@ async function bootSeller(cfg: DemoConfig): Promise<ChildProcess> {
 
   // forward seller output to stderr (visually distinct from buyer's structured events)
   child.stdout?.on("data", (chunk: Buffer) => {
-    process.stderr.write(`[seller] ${chunk.toString()}`);
+    process.stderr.write(`[provider] ${chunk.toString()}`);
   });
   child.stderr?.on("data", (chunk: Buffer) => {
-    process.stderr.write(`[seller] ${chunk.toString()}`);
+    process.stderr.write(`[provider] ${chunk.toString()}`);
   });
 
   // wait until the seller logs that the http server is listening

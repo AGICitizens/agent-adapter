@@ -7,10 +7,10 @@ export interface AdapterPricing {
 }
 
 export interface AdapterIdentity {
-  /** Fully-qualified ENS name, e.g. `weather.agentadapter.eth`. */
+  
   subname: string;
   walletAddress: EvmAddress;
-  /** Reverse-proxy endpoint the buyer agent should call. */
+  
   endpoint: string;
   capabilities: string[];
   pricing: Record<string, AdapterPricing>;
@@ -20,6 +20,6 @@ export interface AdapterIdentity {
 
 export interface IdentityResolver {
   readonly name: string;
-  /** Resolve an adapter's identity by its on-chain name. Returns null if not registered. */
+  
   resolveAdapter(subname: string): Promise<AdapterIdentity | null>;
 }

@@ -8,33 +8,20 @@ import type {
 import type { ServerContext } from "./server.js";
 
 export interface ReverseProxyDeps {
-  /**
-   * Resolve a capability id to its upstream HTTP target. The runtime owns
-   * the mapping (loaded from YAML); the proxy is generic over it.
-   */
+  
   upstreamFor: (capability: Capability) => UpstreamMapping | null;
-  /**
-   * In-memory store of issued challenges keyed by nonce. The proxy reads from
-   * this on the second request to recover the original challenge. A small Map
-   * with periodic eviction is fine for the demo; production deployments swap
-   * this for the runtime store.
-   */
+  
   challengeStore: Map<string, PaymentChallenge>;
 }
 
 export interface UpstreamMapping {
-  /** Base URL of the upstream API (e.g. https://api.open-meteo.com). */
+  
   baseUrl: string;
-  /** Path appended to baseUrl for this capability (e.g. /v1/forecast). */
+  
   path: string;
   method: "GET" | "POST";
 }
 
-/**
- * Mount payment-gated routes for each enabled capability. A request without
- * `X-PAYMENT` receives a 402 with a fresh challenge; a request with a valid
- * payment proof is verified on-chain, then proxied to the upstream API.
- */
 export function mountReverseProxy(
   app: Hono,
   ctx: ServerContext,

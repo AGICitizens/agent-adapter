@@ -65,7 +65,6 @@ async function main(): Promise<void> {
   banner(`Agent Adapter Runtime — Live Demo`);
   printConfigBlock(cfg, yaml);
 
-  // ── Phase 1: Infrastructure Setup ─────────────────────────────────────────
   sectionRule("Infrastructure Setup");
 
   let n = 0;
@@ -107,16 +106,13 @@ async function main(): Promise<void> {
   detail("listening", `http://${yaml.http.host}:${yaml.http.port}`);
   success("provider ready");
 
-  // ── Phase 2: Agent Goal ───────────────────────────────────────────────────
   sectionRule("AI Agent Goal");
   bullet(cfg.goal);
   blank();
 
-  // ── Phase 3: Agent Loop ───────────────────────────────────────────────────
   sectionRule("AI Agent — LLM-Driven");
   const stats = await runBuyer(cfg);
 
-  // ── Phase 4: Results ──────────────────────────────────────────────────────
   sectionRule("Results");
   plain(
     `Completed in ${(stats.totalLatencyMs / 1000).toFixed(1)}s across ${stats.rounds} rounds, ${stats.toolCalls} tool calls`,
@@ -131,7 +127,6 @@ async function main(): Promise<void> {
 
   banner("Demo Complete");
 
-  // graceful seller shutdown
   seller.kill("SIGTERM");
   await new Promise<void>((res) => seller.on("exit", () => res()));
 }
@@ -290,7 +285,6 @@ async function bootSeller(cfg: DemoConfig): Promise<ChildProcess> {
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-  // forward seller output to stderr (visually distinct from buyer's structured events)
   child.stdout?.on("data", (chunk: Buffer) => {
     process.stderr.write(`[provider] ${chunk.toString()}`);
   });
@@ -298,7 +292,6 @@ async function bootSeller(cfg: DemoConfig): Promise<ChildProcess> {
     process.stderr.write(`[provider] ${chunk.toString()}`);
   });
 
-  // wait until the seller logs that the http server is listening
   return new Promise((resolveBoot, rejectBoot) => {
     const timeout = setTimeout(() => {
       rejectBoot(new Error("seller did not become ready in 15s"));
@@ -354,7 +347,6 @@ async function runBuyer(cfg: DemoConfig): Promise<AggregatedStats> {
         const event = JSON.parse(line) as Record<string, unknown>;
         renderBuyerEvent(event, stats);
       } catch {
-        // non-JSON line — surface for debug
         process.stderr.write(`[buyer raw] ${line}\n`);
       }
     }

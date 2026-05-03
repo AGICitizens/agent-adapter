@@ -84,7 +84,6 @@ export async function runLoop(input: RunLoopInput): Promise<RunLoopResult> {
 
     const toolCalls = choice.message.tool_calls ?? [];
     if (toolCalls.length === 0) {
-      // No tool call — treat assistant text as a graceful fallback answer.
       finalAnswer = choice.message.content ?? "";
       break;
     }

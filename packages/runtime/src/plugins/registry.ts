@@ -7,7 +7,7 @@ import type {
 } from "@agent-adapter/contracts";
 
 export interface PluginRegistry {
-  /** Wallets keyed by chain id; one wallet may be reused across chains in practice. */
+  
   wallets: Map<number, WalletPlugin>;
   payments: Map<PaymentRail, PaymentAdapter>;
   extensions: ExtensionPlugin[];

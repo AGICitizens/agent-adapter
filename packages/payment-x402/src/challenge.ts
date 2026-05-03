@@ -7,9 +7,9 @@ export interface ChallengeInput {
   asset: AssetRef;
   chainId: number;
   payTo: EvmAddress;
-  /** Time-to-live in seconds; defaults to 300 (5 min). */
+  
   ttlSeconds?: number;
-  /** Optional escrow contract the buyer must call instead of transferring directly. */
+  
   escrowAddress?: EvmAddress;
 }
 
@@ -25,10 +25,8 @@ export interface IssuedChallenge {
   escrowAddress?: EvmAddress;
 }
 
-/** Generate a fresh challenge with a cryptographic nonce + expiration. */
 export function issueChallenge(input: ChallengeInput): IssuedChallenge {
   const ttl = (input.ttlSeconds ?? 300) * 1000;
-  // 32 bytes — matches the `bytes32` parameter on AgentAdapterEscrow.pay
   const nonce = `0x${randomBytes(32).toString("hex")}` as Hex;
   return {
     rail: "x402",
@@ -49,7 +47,6 @@ export interface PaymentClaim {
   nonce: Hex;
 }
 
-/** Parse the X-PAYMENT header value into a typed claim, or throw. */
 export function parsePaymentHeader(value: string): PaymentClaim {
   let parsed: unknown;
   try {

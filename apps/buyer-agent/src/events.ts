@@ -24,11 +24,6 @@ export type BuyerEvent =
 
 export type BuyerEventEmitter = (event: BuyerEvent) => void;
 
-/**
- * Default emitter writes a single JSON line per event to stdout. The demo
- * orchestrator parses these lines and renders them in chalk + boxen — keeping
- * the buyer-agent's logic free of presentation concerns.
- */
 export const stdoutEmitter: BuyerEventEmitter = (event) => {
   process.stdout.write(`${JSON.stringify({ ts: Date.now(), ...event })}\n`);
 };

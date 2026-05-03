@@ -17,11 +17,6 @@ export interface SignTypedDataArgs {
   message: Record<string, unknown>;
 }
 
-/**
- * A wallet plugin is the runtime's signing primitive on a specific chain.
- * One adapter instance can register multiple wallets — one per chain it
- * needs to sign on (e.g. one for 0G Galileo, one for Sepolia).
- */
 export interface WalletPlugin {
   readonly chainId: ChainId;
   readonly address: EvmAddress;

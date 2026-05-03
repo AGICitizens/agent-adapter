@@ -65,7 +65,7 @@ const DEFAULT_YAML = `adapter:
 capabilities:
   source:
     type: manual
-    baseUrl: https://api.open-meteo.com
+    baseUrl: https:
     definitions:
       - id: forecast
         name: Weather Forecast
@@ -102,7 +102,7 @@ ens:
 
 keeperhub:
   apiKey: \${KEEPERHUB_API_KEY}
-  baseUrl: https://app.keeperhub.com/api
+  baseUrl: https:
   identityWorkflowSlug: agent-adapter-publish-identity
 
 http:
@@ -111,12 +111,12 @@ http:
 `;
 
 const DEFAULT_ENV = `PRIVATE_KEY=
-ZG_RPC_URL=https://evmrpc-testnet.0g.ai
+ZG_RPC_URL=https:
 ZG_ESCROW_ADDRESS=
-SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+SEPOLIA_RPC_URL=https:
 ENS_PARENT_NAME=
 KEEPERHUB_API_KEY=
-KEEPERHUB_BASE_URL=https://app.keeperhub.com/api
+KEEPERHUB_BASE_URL=https:
 `;
 
 main().catch((err) => {

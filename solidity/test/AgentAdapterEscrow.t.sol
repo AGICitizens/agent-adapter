@@ -60,8 +60,6 @@ contract AgentAdapterEscrowTest is Test {
     }
 }
 
-/// @dev Helper recipient that always reverts on receive — exercises the
-/// `TransferFailed` branch in the escrow contract.
 contract Reverter {
     receive() external payable {
         revert("nope");

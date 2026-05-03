@@ -11,29 +11,18 @@ import { EvmWallet } from "@agent-adapter/wallet-evm";
 import { issueChallenge, parsePaymentHeader, type IssuedChallenge } from "./challenge.js";
 
 export interface X402AdapterConfig {
-  /** EVM wallet whose `chainId` matches the chain the escrow lives on. */
+  
   wallet: EvmWallet;
-  /** Address that receives payment. Typically the adapter's wallet or an escrow contract. */
+  
   payTo: EvmAddress;
-  /** Function returning the price for a given capability call. */
+  
   priceLookup: (capabilityId: string) => { amount: bigint; asset: AssetRef };
-  /** Optional TTL override in seconds; defaults to 300. */
+  
   challengeTtlSeconds?: number;
-  /**
-   * Address of the deployed `AgentAdapterEscrow` contract on the same chain as `wallet`.
-   * When set, the adapter switches to event-based verification: a payment is valid iff
-   * the receipt logs include a matching `Paid(nonce, payer, payee, amount)` emitted by
-   * this contract. Without it, the adapter falls back to plain `to == payTo` matching.
-   */
+  
   escrowAddress?: EvmAddress;
 }
 
-/**
- * Server-side x402 adapter. Issues 402 challenges, verifies on-chain
- * settlement, and returns a receipt that callers can trust. Replay
- * protection is held in `consumedNonces`; production deployments should
- * persist this through the runtime store rather than rely on process memory.
- */
 export class X402Adapter implements PaymentAdapter {
   readonly rail = "x402" as const;
 
@@ -180,6 +169,5 @@ export class X402Adapter implements PaymentAdapter {
 const TRANSFER_TOPIC =
   "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" as `0x${string}`;
 
-/** keccak256("Paid(bytes32,address,address,uint256)") — emitted by AgentAdapterEscrow.pay. */
 const PAID_TOPIC =
   "0x37db9851b6c9a32f8ddcf4734e6526de7c85268ef735f7883ea70dc8a39c9c85" as `0x${string}`;

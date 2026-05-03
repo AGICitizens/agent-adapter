@@ -19,11 +19,7 @@ export interface PaymentChallenge {
   payTo: EvmAddress;
   expiresAt: number;
   nonce: Hex;
-  /**
-   * For x402 over an escrow contract: address the buyer must call. The buyer invokes
-   * `escrowAddress.pay(nonce, payTo){value}` rather than transferring directly to `payTo`.
-   * Absent for plain transfer flows.
-   */
+  
   escrowAddress?: EvmAddress;
   metadata?: Record<string, unknown>;
 }
@@ -35,7 +31,7 @@ export interface PaymentReceipt {
   amount?: bigint;
   asset?: AssetRef;
   chainId?: ChainId;
-  /** Adapter-specific raw receipt payload, opaque to the runtime. */
+  
   rawReceipt?: unknown;
 }
 
@@ -46,6 +42,6 @@ export interface PaymentAdapter {
 
   challenge(args: { quote: PaymentQuote; capabilityId: string }): Promise<PaymentChallenge>;
 
-  /** Returns a receipt iff the claim satisfies the challenge; null otherwise. */
+  
   verify(args: { challenge: PaymentChallenge; claim: unknown }): Promise<PaymentReceipt | null>;
 }

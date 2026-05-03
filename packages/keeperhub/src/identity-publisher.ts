@@ -3,20 +3,16 @@ import type { KeeperHubClient, TriggerWorkflowResponse } from "./client.js";
 
 export interface IdentityPublisherConfig {
   client: KeeperHubClient;
-  /**
-   * Slug of the KeeperHub workflow that performs the on-chain ENS write.
-   * The workflow is provisioned manually in the KeeperHub dashboard and
-   * receives the publish payload as its input.
-   */
+  
   workflowSlug: string;
 }
 
 export interface PublishIdentityInput {
-  /** Fully-qualified ENS subname being provisioned, e.g. `weather.agentadapter.eth`. */
+  
   subname: string;
-  /** Address of the adapter's owner — typically the seller's wallet. */
+  
   ownerAddress: EvmAddress;
-  /** The identity payload that ends up in ENS text records. */
+  
   manifest: Omit<AdapterIdentity, "subname">;
 }
 
@@ -27,11 +23,7 @@ export class KeeperHubIdentityPublisher {
     }
   }
 
-  /**
-   * Hand off an ENS subname registration + text-record write to KeeperHub.
-   * Returns the executionId without polling — verify success out-of-band by
-   * resolving the subname through the ENS identity resolver.
-   */
+  
   async publish(input: PublishIdentityInput): Promise<TriggerWorkflowResponse> {
     const body = {
       subname: input.subname,

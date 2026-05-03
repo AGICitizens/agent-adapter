@@ -3,7 +3,7 @@ import { z } from "zod";
 export interface KeeperHubClientConfig {
   apiKey: string;
   baseUrl: string;
-  /** Network timeout per request in ms; defaults to 15000. */
+  
   timeoutMs?: number;
 }
 
@@ -38,11 +38,7 @@ export class KeeperHubClient {
     this.timeoutMs = config.timeoutMs ?? 15_000;
   }
 
-  /**
-   * Trigger a pre-configured KeeperHub workflow by slug. KeeperHub executes
-   * asynchronously on its managed infrastructure (the org's Para MPC wallet
-   * pays gas on Sepolia) and returns an executionId immediately.
-   */
+  
   async triggerWorkflow(slug: string, body: unknown): Promise<TriggerWorkflowResponse> {
     if (!slug) throw new Error("triggerWorkflow: slug is required");
 

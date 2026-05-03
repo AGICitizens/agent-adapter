@@ -12,10 +12,7 @@ const EnvSchema = z.object({
 
   SEPOLIA_RPC_URL: z.string().url("SEPOLIA_RPC_URL must be a URL"),
 
-  /**
-   * Buyer's signing key. Distinct from `PRIVATE_KEY` (the seller's) so the demo
-   * shows two distinct wallets. Falls back to PRIVATE_KEY for single-wallet runs.
-   */
+  
   BUYER_PRIVATE_KEY: z.string().regex(HEX_PRIVATE_KEY).optional(),
   PRIVATE_KEY: z.string().regex(HEX_PRIVATE_KEY).optional(),
 

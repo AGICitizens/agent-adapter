@@ -37,7 +37,7 @@ export interface CallCapabilityInput {
   query: Record<string, string | number | boolean>;
   body?: unknown;
   method?: "GET" | "POST";
-  /** Round number — used purely for event correlation. */
+  
   round: number;
 }
 
@@ -51,16 +51,10 @@ export interface X402ClientConfig {
   buyerWallet: EvmWallet;
   paymentChainId: number;
   emitEvent: BuyerEventEmitter;
-  /** Per-fetch timeout in ms; defaults to 30000. */
+  
   timeoutMs?: number;
 }
 
-/**
- * HTTP client that auto-handles 402 Payment Required by signing and broadcasting
- * an `escrow.pay(nonce, payee)` transaction on the payment chain, then retrying
- * the original request with the `X-PAYMENT` header. Plain 200 responses pass
- * through unchanged.
- */
 export class X402Client {
   private readonly timeoutMs: number;
 
@@ -133,7 +127,6 @@ export class X402Client {
     }
 
     if (!challenge.escrowAddress) {
-      // No escrow contract — direct transfer to payTo.
       return this.config.buyerWallet.sendTransaction({
         to: challenge.payTo as EvmAddress,
         value: challenge.amount,
@@ -179,7 +172,6 @@ export class X402Client {
       try {
         parsed = JSON.parse(text);
       } catch {
-        // Non-JSON body — return as text. Upstream APIs may legitimately return raw text.
       }
       return { status: response.status, body: parsed };
     } finally {

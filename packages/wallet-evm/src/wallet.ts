@@ -24,17 +24,12 @@ export interface EvmWalletConfig {
   chainId: ChainId;
   rpcUrl: string;
   privateKey: Hex;
-  /** Optional human-readable name; defaults to `chain-${chainId}`. */
+  
   name?: string;
-  /** Optional native symbol; defaults to "ETH". */
+  
   symbol?: string;
 }
 
-/**
- * Build a `WalletPlugin` backed by viem. One instance signs on a single chain;
- * register multiple instances (one per chain) with the runtime to support
- * multichain flows like 0G Galileo for payments + Sepolia for ENS.
- */
 export function createEvmWallet(config: EvmWalletConfig): EvmWallet {
   return new EvmWallet(config);
 }
@@ -88,7 +83,6 @@ export class EvmWallet implements WalletPlugin {
     return this.walletClient.signTypedData({
       account: this.account,
       domain: args.domain,
-      // viem's typed-data API expects the types and primaryType directly.
       types: args.types as Parameters<WalletClient["signTypedData"]>[0]["types"],
       primaryType: args.primaryType,
       message: args.message,

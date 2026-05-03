@@ -17,10 +17,10 @@ import type {
 } from "@agent-adapter/contracts";
 
 export interface EnsIdentityResolverConfig {
-  /** Sepolia chain id (11155111) — the resolver only operates on this network. */
+  
   chainId: ChainId;
   rpcUrl: string;
-  /** Default payment chain to assign when the manifest omits it (e.g. `16602` for 0G Galileo). */
+  
   defaultPaymentChainId: ChainId;
 }
 
@@ -175,11 +175,6 @@ function parseChainId(raw: string | null): ChainId | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-/**
- * viem's built-in `sepolia` and `mainnet` chain configs include the ENS
- * Universal Resolver address. `defineChain` does not — `getEnsText` against a
- * custom chain silently fails. Prefer the preset for known ENS chains.
- */
 function pickEnsChain(chainId: ChainId, rpcUrl: string): Chain {
   if (chainId === sepolia.id) return sepolia;
   if (chainId === mainnet.id) return mainnet;

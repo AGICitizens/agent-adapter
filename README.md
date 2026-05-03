@@ -60,7 +60,7 @@ Per-bounty details are in [`bounties/`](./bounties):
 
 - [0G](./bounties/0G.md)
 - [ENS](./bounties/ENS.md)
-- [KeeperHub](./bounties/KEEPERHUB.md)
+- [KeeperHub](./bounties/KeeperHub.md)
 
 ## Repository layout
 
